@@ -38,6 +38,7 @@ in
     # (pkgs.writeShellScriptBin "my-hello" ''
     #   echo "Hello, ${config.home.username}!"
     # '')
+    pkgs.clang
     pkgs.brave
     pkgs.joplin-desktop
     pkgs.brightnessctl
