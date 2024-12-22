@@ -3,7 +3,6 @@
 let
   myAliases = {
     ll = "ls -l";
-    code = "code --password-store=\"gnome-libsecret\"";
   };
 in
 {
