@@ -76,6 +76,10 @@ in
     pkgs.nixpkgs-fmt
     pkgs.uv
     pkgs.aoc-cli
+    pkgs.xfce.thunar
+    pkgs.xfce.thunar-volman
+    pkgs.xfce.thunar-archive-plugin
+    pkgs.xfce.thunar-media-tags-plugin
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -272,7 +276,7 @@ in
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
     "$terminal" = "kitty";
-    "$fileManager" = "dolphin";
+    "$fileManager" = "thunar";
     # debug.disable_logs = false;
     exec-once = [
       "wl-paste --type text --watch cliphist store"
