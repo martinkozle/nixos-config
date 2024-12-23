@@ -80,6 +80,7 @@ in
     pkgs.xfce.thunar-volman
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
+    pkgs.godot_4
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
