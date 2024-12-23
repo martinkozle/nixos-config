@@ -274,9 +274,10 @@ in
 
   programs.kitty.enable = true;
 
-  wayland.windowManager.hyprland.enable = true;
-
-  wayland.windowManager.hyprland.systemd.variables = [ "--all" ];
+  wayland.windowManager.hyprland = {
+    enable = true;
+    systemd.variables = [ "--all" ];
+  };
 
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
@@ -334,12 +335,13 @@ in
       ];
       follow_mouse = 1;
       touchpad = {
-        disable_while_typing = false;
+        disable_while_typing = true;
         natural_scroll = true;
         tap-to-click = true;
         clickfinger_behavior = true;
         scroll_factor = 0.2;
       };
+      force_no_accel = true;
       accel_profile = "flat";
       sensitivity = 0;
     };
