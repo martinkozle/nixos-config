@@ -4,6 +4,31 @@ let
   myAliases = {
     ll = "ls -l";
   };
+
+  cliphist-rofi-img = pkgs.writeShellScriptBin "cliphist-rofi-img" ''
+    #!/usr/bin/env bash
+
+    tmp_dir="/tmp/cliphist"
+    rm -rf "$tmp_dir"
+
+    if [[ -n "$1" ]]; then
+        cliphist decode <<<"$1" | wl-copy
+        exit
+    fi
+
+    mkdir -p "$tmp_dir"
+
+    read -r -d ''' prog <<EOF
+    /^[0-9]+\s<meta http-equiv=/ { next }
+    match(\$0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp)/, grp) {
+        system("echo " grp[1] "\\\\\t | cliphist decode >$tmp_dir/"grp[1]"."grp[3])
+        print \$0"\0icon\x1f$tmp_dir/"grp[1]"."grp[3]
+        next
+    }
+    1
+    EOF
+    cliphist list | gawk "$prog"
+  '';
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -38,9 +63,13 @@ in
     #   echo "Hello, ${config.home.username}!"
     # '')
     pkgs.clang
+    pkgs.rofi-wayland
+    pkgs.rofimoji
+    pkgs.cliphist
+    pkgs.wl-clipboard
+    pkgs.brightnessctl
     pkgs.brave
     pkgs.joplin-desktop
-    pkgs.brightnessctl
     pkgs.btop
     pkgs.seahorse
     pkgs.vscode.fhs
@@ -160,6 +189,10 @@ in
     package = pkgs.vscode.fhs;
   };
 
+  programs.rofi = {
+    theme = "Arc-Dark";
+  };
+
   services.hypridle = {
     enable = true;
     settings = {
@@ -241,6 +274,10 @@ in
     "$terminal" = "kitty";
     "$fileManager" = "dolphin";
     # debug.disable_logs = false;
+    exec-once = [
+      "wl-paste --type text --watch cliphist store"
+      "wl-paste --type image --watch cliphist store"
+    ];
     monitor = [
       "desc:BOE 0x086E,highres,0x0,1"
       "desc:Dell Inc. AW3423DWF BDC42S3,highres,auto-right,1"
@@ -307,10 +344,9 @@ in
       "suppressevent maximize, class:.*"
     ];
     bind = [
-      "$mod, T, exec, $terminal"
-      "$mod, Q, killactive,"
       "$mod ALT, DELETE, exit,"
-      "$mod, E, exec, $fileManager"
+      "$mod, DELETE, exec, hyprlock"
+      "$mod, Q, killactive,"
       "$mod, F, togglefloating,"
       "$mod, P, pseudo,"
       "$mod, X, togglesplit,"
@@ -346,7 +382,11 @@ in
       "$mod ALT, right, movecurrentworkspacetomonitor, r"
       "$mod, mouse_down, workspace, e+1"
       "$mod, mouse_up, workspace, e-1"
-      "$mod, DELETE, exec, hyprlock"
+      "$mod, E, exec, $fileManager"
+      "$mod, T, exec, $terminal"
+      "$mod, SPACE, exec, rofi -show drun"
+      "$mod, PERIOD, exec, rofimoji --action copy"
+      "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons | cliphist decode | wl-copy"
     ];
     bindd = [
       "$mod, Tab, Change focus to next window, cyclenext,"
