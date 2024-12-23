@@ -74,6 +74,7 @@ in
     pkgs.rofimoji
     pkgs.cliphist
     pkgs.wl-clipboard
+    pkgs.hyprshot
     pkgs.brightnessctl
     pkgs.brave
     pkgs.joplin-desktop
@@ -405,6 +406,9 @@ in
       "$mod, SPACE, exec, rofi -show drun"
       "$mod, PERIOD, exec, rofimoji --action copy"
       "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons | cliphist decode | wl-copy"
+      ", Print, exec, hyprshot -m output --clipboard-only"
+      "SHIFT, Print, exec, hyprshot -m window --clipboard-only"
+      "$mod SHIFT, Print, exec, hyprshot -m region --clipboard-only"
       "$mod, grave, exec, swaync-client -t -sw"
     ];
     bindd = [
