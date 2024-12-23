@@ -268,6 +268,10 @@ in
     };
   };
 
+  services.swaync = {
+    enable = true;
+  };
+
   programs.kitty.enable = true;
 
   wayland.windowManager.hyprland.enable = true;
@@ -392,6 +396,7 @@ in
       "$mod, SPACE, exec, rofi -show drun"
       "$mod, PERIOD, exec, rofimoji --action copy"
       "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons | cliphist decode | wl-copy"
+      "$mod, grave, exec, swaync-client -t -sw"
     ];
     bindd = [
       "$mod, Tab, Change focus to next window, cyclenext,"
