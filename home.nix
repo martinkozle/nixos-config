@@ -89,6 +89,7 @@ in
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
     (GPUOffloadApp pkgs.godot_4 "org.godotengine.Godot4")
+    pkgs.vesktop
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
