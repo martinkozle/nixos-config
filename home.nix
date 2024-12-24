@@ -76,6 +76,7 @@ in
     pkgs.wl-clipboard
     pkgs.hyprshot
     pkgs.brightnessctl
+    pkgs.playerctl
     pkgs.brave
     pkgs.joplin-desktop
     pkgs.btop
@@ -292,6 +293,7 @@ in
     "$mod" = "SUPER";
     "$terminal" = "kitty";
     "$fileManager" = "thunar";
+    "$backlight" = "intel_backlight";
     # debug.disable_logs = false;
     exec-once = [
       "wl-paste --type text --watch cliphist store"
@@ -421,6 +423,19 @@ in
       "$mod, mouse:273, resizewindow"
     ];
     bindl = [
+      ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+      ", XF86AudioPause, exec, playerctl play-pause; hyprctl notify -1 2000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl status))\""
+      ", XF86AudioPlay, exec, playerctl play-pause; hyprctl notify -1 2000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl status))\""
+      ", XF86AudioNext, exec, playerctl next; hyprctl notify -1 3000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist)\""
+      ", XF86AudioPrev, exec, playerctl previous; hyprctl notify -1 3000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist)\""
+    ];
+    bindel = [
+      ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%-; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+      ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
+      "$mod, XF86AudioLowerVolume, exec, playerctl volume 0.05-; hyprctl notify -1 1500 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl volume))\""
+      "$mod, XF86AudioRaiseVolume, exec, playerctl volume 0.05+; hyprctl notify -1 1500 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl volume))\""
+      ", XF86MonBrightnessDown, exec, brightnessctl -d $backlight set 5%- --min-value 1; hyprctl notify -1 1500 0 \"Brightness: $(brightnessctl -d $backlight -m | cut -d, -f4)\""
+      ", XF86MonBrightnessUp, exec, brightnessctl -d $backlight set 5%+; hyprctl notify -1 1500 0 \"Brightness: $(brightnessctl -d $backlight -m | cut -d, -f4)\""
     ];
   };
 
