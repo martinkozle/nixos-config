@@ -75,6 +75,7 @@ in
     pkgs.cliphist
     pkgs.wl-clipboard
     pkgs.hyprshot
+    pkgs.hyprpolkitagent
     pkgs.brightnessctl
     pkgs.playerctl
     pkgs.brave
@@ -296,6 +297,7 @@ in
     "$backlight" = "intel_backlight";
     # debug.disable_logs = false;
     exec-once = [
+      "systemctl --user start hyprpolkitagent"
       "wl-paste --type text --watch cliphist store"
       "wl-paste --type image --watch cliphist store"
     ];
@@ -362,7 +364,7 @@ in
     };
     windowrulev2 = [
       "float,class:(copyq)"
-      "move onscreen  cursor,class:(copyq)"
+      "move onscreen cursor,class:(copyq)"
       "suppressevent maximize, class:.*"
     ];
     bind = [
