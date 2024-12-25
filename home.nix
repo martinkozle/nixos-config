@@ -410,7 +410,7 @@ in
       "$mod, mouse_down, workspace, e+1"
       "$mod, mouse_up, workspace, e-1"
       "$mod SHIFT, E, exec, $fileManager"
-      "$mod SHIFT, ENTER, exec, $terminal"
+      "$mod SHIFT, RETURN, exec, $terminal"
       "$mod, SPACE, exec, rofi -show drun"
       "$mod, PERIOD, exec, rofimoji --action copy"
       "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons"
