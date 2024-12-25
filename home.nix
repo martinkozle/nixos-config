@@ -366,8 +366,10 @@ in
       "suppressevent maximize, class:.*"
     ];
     bind = [
-      "$mod ALT, DELETE, exit,"
       "$mod, DELETE, exec, hyprlock"
+      "$mod ALT, DELETE, exit,"
+      "$mod ALT CONTROL, DELETE, exec, systemctl reboot"
+      "$mod ALT CONTROL SHIFT, DELETE, exec, systemctl poweroff"
       "$mod, Q, killactive,"
       "$mod, F, togglefloating,"
       "$mod, P, pseudo,"
