@@ -76,6 +76,7 @@ in
     pkgs.wl-clipboard
     pkgs.hyprshot
     pkgs.hyprpolkitagent
+    pkgs.hyprpicker
     pkgs.brightnessctl
     pkgs.playerctl
     pkgs.brave
@@ -408,15 +409,16 @@ in
       "$mod ALT, right, movecurrentworkspacetomonitor, r"
       "$mod, mouse_down, workspace, e+1"
       "$mod, mouse_up, workspace, e-1"
-      "$mod, E, exec, $fileManager"
-      "$mod, T, exec, $terminal"
+      "$mod SHIFT, E, exec, $fileManager"
+      "$mod SHIFT, ENTER, exec, $terminal"
       "$mod, SPACE, exec, rofi -show drun"
       "$mod, PERIOD, exec, rofimoji --action copy"
-      "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons | cliphist decode | wl-copy"
+      "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons"
       ", Print, exec, hyprshot -m output --clipboard-only"
       "SHIFT, Print, exec, hyprshot -m window --clipboard-only"
       "$mod SHIFT, Print, exec, hyprshot -m region --clipboard-only"
       "$mod, grave, exec, swaync-client -t -sw"
+      "$mod SHIFT, T, exec, hyprpicker -a"
     ];
     bindd = [
       "$mod, Tab, Change focus to next window, cyclenext,"
