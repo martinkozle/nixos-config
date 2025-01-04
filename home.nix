@@ -314,8 +314,8 @@ in
     ];
     monitor = [
       "desc:BOE 0x086E,highres,0x0,1"
-      "desc:Dell Inc. AW3423DWF BDC42S3,highres,auto-right,1"
-      "desk:Microstep MSI MAG241CR 0x000001DA,highres,auto-right,1"
+      "desc:Dell Inc. AW3423DWF BDC42S3,highres,auto-right,1,vrr,1"
+      "desc:Microstep MSI MAG241CR 0x000001DA,1920x1080@144,auto-right,1"
       ",preferred,auto,1"
     ];
     general = {
