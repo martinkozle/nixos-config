@@ -179,6 +179,12 @@ in
         file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
       }
     ];
+
+    initExtra = ''
+      if uwsm check may-start && uwsm select; then
+      	exec systemd-cat -t uwsm_start uwsm start default
+      fi
+    '';
   };
 
   programs.starship = {
@@ -289,6 +295,7 @@ in
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.variables = [ "--all" ];
+    systemd.enable = false;
   };
 
   wayland.windowManager.hyprland.settings = {
@@ -299,8 +306,11 @@ in
     # debug.disable_logs = false;
     exec-once = [
       "systemctl --user start hyprpolkitagent"
-      "wl-paste --type text --watch cliphist store"
-      "wl-paste --type image --watch cliphist store"
+      "uwsm app -- wl-paste --type text --watch cliphist store"
+      "uwsm app -- wl-paste --type image --watch cliphist store"
+    ];
+    env = [
+      "GSK_RENDERER,gl"
     ];
     monitor = [
       "desc:BOE 0x086E,highres,0x0,1"
@@ -369,7 +379,7 @@ in
       "suppressevent maximize, class:.*"
     ];
     bind = [
-      "$mod, DELETE, exec, hyprlock"
+      "$mod, DELETE, exec, uwsm app -- hyprlock"
       "$mod ALT, DELETE, exit,"
       "$mod ALT CONTROL, DELETE, exec, systemctl reboot"
       "$mod ALT CONTROL SHIFT, DELETE, exec, systemctl poweroff"
@@ -409,16 +419,16 @@ in
       "$mod ALT, right, movecurrentworkspacetomonitor, r"
       "$mod, mouse_down, workspace, e+1"
       "$mod, mouse_up, workspace, e-1"
-      "$mod SHIFT, E, exec, $fileManager"
-      "$mod SHIFT, RETURN, exec, $terminal"
-      "$mod, SPACE, exec, rofi -show drun"
-      "$mod, PERIOD, exec, rofimoji --action copy"
-      "$mod, V, exec, cliphist list | rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons"
-      ", Print, exec, hyprshot -m output --clipboard-only"
-      "SHIFT, Print, exec, hyprshot -m window --clipboard-only"
-      "$mod SHIFT, Print, exec, hyprshot -m region --clipboard-only"
-      "$mod, grave, exec, swaync-client -t -sw"
-      "$mod SHIFT, T, exec, hyprpicker -a"
+      "$mod SHIFT, E, exec, uwsm app -- $fileManager"
+      "$mod SHIFT, RETURN, exec, uwsm app -- $terminal"
+      "$mod, SPACE, exec, uwsm app -- rofi -show drun"
+      "$mod, PERIOD, exec, uwsm app -- rofimoji --action copy"
+      "$mod, V, exec, cliphist list | uwsm app -- rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons"
+      ", Print, exec, uwsm app -- hyprshot -m output --clipboard-only"
+      "SHIFT, Print, exec, uwsm app -- hyprshot -m window --clipboard-only"
+      "$mod SHIFT, Print, exec, uwsm app -- hyprshot -m region --clipboard-only"
+      "$mod, grave, exec, uwsm app -- swaync-client -t -sw"
+      "$mod SHIFT, T, exec, uwsm app -- hyprpicker -a"
     ];
     bindd = [
       "$mod, Tab, Change focus to next window, cyclenext,"
