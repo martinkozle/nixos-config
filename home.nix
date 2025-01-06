@@ -172,6 +172,7 @@ in
     shellAliases = myAliases;
     history = {
       size = 100000;
+      path = "$HOME/.zsh_history";
     };
 
     plugins = [
