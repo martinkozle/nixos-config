@@ -96,6 +96,12 @@ in
     (GPUOffloadApp pkgs.godot_4 "org.godotengine.Godot4")
     pkgs.vesktop
     pkgs.helio-workstation
+    pkgs.pre-commit
+    pkgs.audacity
+    pkgs.shotcut
+    pkgs.vlc
+    pkgs.unzip
+    pkgs.libsForQt5.okular
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
