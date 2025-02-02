@@ -165,6 +165,8 @@ in
     };
   };
 
+  nixGL.vulkan.enable = true;
+
   programs.bash = {
     enable = true;
     shellAliases = myAliases;
