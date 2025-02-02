@@ -26,6 +26,12 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  fileSystems."/nas" = {
+    device = "debian:/nas";
+    fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "nofail" ];
+  };
+
   # Set your time zone.
   time.timeZone = "Europe/Skopje";
 
