@@ -557,10 +557,7 @@ in
     input = {
       kb_layout = "us,us,mk";
       kb_variant = "dvorak,,";
-      kb_options = [
-        "grp:win_space_toggle"
-        "caps:escape"
-      ];
+      kb_options = "caps:escape,grp:alt_space_toggle";
       follow_mouse = 1;
       touchpad = {
         disable_while_typing = true;
