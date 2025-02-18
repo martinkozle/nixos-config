@@ -75,6 +75,8 @@ in
     pkgs.vlc
     pkgs.unzip
     pkgs.libsForQt5.okular
+    pkgs.cargo
+    pkgs.rustc
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage

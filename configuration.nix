@@ -1,27 +1,22 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  ...
+}:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  boot.initrd.luks.devices."luks-c63de383-b1b4-40e0-a155-8bd3c414edbb".device = "/dev/disk/by-uuid/c63de383-b1b4-40e0-a155-8bd3c414edbb";
+  boot.initrd.luks.devices."luks-c63de383-b1b4-40e0-a155-8bd3c414edbb".device =
+    "/dev/disk/by-uuid/c63de383-b1b4-40e0-a155-8bd3c414edbb";
   networking.hostName = "p1g3"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -29,7 +24,11 @@
   fileSystems."/nas" = {
     device = "debian:/nas";
     fsType = "nfs";
-    options = [ "x-systemd.automount" "noauto" "nofail" ];
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "nofail"
+    ];
   };
 
   # Set your time zone.
@@ -63,12 +62,15 @@
   # Configure console keymap
   console.keyMap = "dvorak";
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account
   users.users.martin = {
     isNormalUser = true;
     description = "Martin Popovski";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [ ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
+    packages = [ ];
   };
 
   # Allow unfree packages
@@ -76,16 +78,14 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    curl
-    tmux
-    gnupg
-    pinentry-qt
-    libsecret
-    cargo
-    rustc
+  environment.systemPackages = [
+    pkgs.vim
+    pkgs.wget
+    pkgs.curl
+    pkgs.tmux
+    pkgs.gnupg
+    pkgs.pinentry-qt
+    pkgs.libsecret
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -129,7 +129,10 @@
   system.stateVersion = "24.11"; # Did you read the comment?
 
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
     substituters = [
       "https://nix-community.cachix.org/"
       "https://hyprland.cachix.org/"
@@ -201,7 +204,7 @@
 
     # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
     # Enable this if you have graphical corruption issues or application crashes after waking
-    # up from sleep. This fixes it by saving the entire VRAM memory to /tmp/ instead 
+    # up from sleep. This fixes it by saving the entire VRAM memory to /tmp/ instead
     # of just the bare essentials.
     powerManagement.enable = false;
 
@@ -211,9 +214,9 @@
 
     # Use the NVidia open source kernel module (not to be confused with the
     # independent third-party "nouveau" open source driver).
-    # Support is limited to the Turing and later architectures. Full list of 
-    # supported GPUs is at: 
-    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
+    # Support is limited to the Turing and later architectures. Full list of
+    # supported GPUs is at:
+    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
     # Only available from driver 515.43.04+
     # Currently alpha-quality/buggy, so false is currently the recommended setting.
     open = false;
