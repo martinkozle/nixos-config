@@ -533,6 +533,7 @@ in
     "$fileManager" = "thunar";
     "$backlight" = "intel_backlight";
     # debug.disable_logs = false;
+    # debug.overlay = true;
     exec-once = [
       "systemctl --user start hyprpolkitagent"
       "uwsm app -- wl-paste --type text --watch cliphist store"
