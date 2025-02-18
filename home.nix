@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   myAliases = {
@@ -30,11 +35,14 @@ let
     cliphist list | gawk "$prog"
   '';
 
-  patchDesktop = pkg: appName: from: to: lib.hiPrio (
+  patchDesktop =
+    pkg: appName: from: to:
+    lib.hiPrio (
     pkgs.runCommand "$patched-desktop-entry-for-${appName}" { } ''
       ${pkgs.coreutils}/bin/mkdir -p $out/share/applications
       ${pkgs.gnused}/bin/sed 's#${from}#${to}#g' < ${pkg}/share/applications/${appName}.desktop > $out/share/applications/${appName}.desktop
-    '');
+      ''
+    );
   GPUOffloadApp = pkg: desktopName: patchDesktop pkg desktopName "^Exec=" "Exec=nvidia-offload ";
 in
 {
@@ -87,6 +95,7 @@ in
     pkgs.seahorse
     pkgs.vscode.fhs
     pkgs.nixpkgs-fmt
+    pkgs.nixd
     pkgs.uv
     pkgs.aoc-cli
     pkgs.xfce.thunar
@@ -208,9 +217,7 @@ in
     enable = true;
     lfs.enable = true;
     extraConfig = {
-      credential.helper = "${
-          pkgs.git.override { withLibsecret = true; }
-        }/bin/git-credential-libsecret";
+      credential.helper = "${pkgs.git.override { withLibsecret = true; }}/bin/git-credential-libsecret";
       init.defaultBranch = "main";
     };
     signing.key = "847633C95FC29494";
@@ -307,9 +314,24 @@ in
         position = "top";
         height = 40;
         mode = "hide";
-        modules-left = [ "hyprland/workspaces" "cpu" "memory" "temperature" "disk" ];
+        modules-left = [
+          "hyprland/workspaces"
+          "cpu"
+          "memory"
+          "temperature"
+          "disk"
+        ];
         modules-center = [ "hyprland/window" ];
-        modules-right = [ "nm-applet" "blueman-applet" "pulseaudio" "backlight" "battery" "clock" "keyboard-state" "tray" ];
+        modules-right = [
+          "nm-applet"
+          "blueman-applet"
+          "pulseaudio"
+          "backlight"
+          "battery"
+          "clock"
+          "keyboard-state"
+          "tray"
+        ];
 
         "hyprland/workspaces" = {
           separate-outputs = true;

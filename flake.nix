@@ -8,7 +8,14 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
-  outputs = { self, nixpkgs, home-manager, nixos-hardware, ... } @ inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nixos-hardware,
+      ...
+    }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -18,7 +25,10 @@
         p1g3 = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };
-          modules = [ nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3 ./configuration.nix ];
+          modules = [
+            nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
+            ./configuration.nix
+          ];
         };
       };
       homeConfigurations = {
