@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
 
@@ -9,41 +8,6 @@ let
   myAliases = {
     ll = "ls -l";
   };
-
-  cliphist-rofi-img = pkgs.writeShellScriptBin "cliphist-rofi-img" ''
-    #!/usr/bin/env bash
-
-    tmp_dir="/tmp/cliphist"
-    rm -rf "$tmp_dir"
-
-    if [[ -n "$1" ]]; then
-        cliphist decode <<<"$1" | wl-copy
-        exit
-    fi
-
-    mkdir -p "$tmp_dir"
-
-    read -r -d ''' prog <<EOF
-    /^[0-9]+\s<meta http-equiv=/ { next }
-    match(\$0, /^([0-9]+)\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp)/, grp) {
-        system("echo " grp[1] "\\\\\t | cliphist decode >$tmp_dir/"grp[1]"."grp[3])
-        print \$0"\0icon\x1f$tmp_dir/"grp[1]"."grp[3]
-        next
-    }
-    1
-    EOF
-    cliphist list | gawk "$prog"
-  '';
-
-  patchDesktop =
-    pkg: appName: from: to:
-    lib.hiPrio (
-    pkgs.runCommand "$patched-desktop-entry-for-${appName}" { } ''
-      ${pkgs.coreutils}/bin/mkdir -p $out/share/applications
-      ${pkgs.gnused}/bin/sed 's#${from}#${to}#g' < ${pkg}/share/applications/${appName}.desktop > $out/share/applications/${appName}.desktop
-      ''
-    );
-  GPUOffloadApp = pkg: desktopName: patchDesktop pkg desktopName "^Exec=" "Exec=nvidia-offload ";
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -102,7 +66,7 @@ in
     pkgs.xfce.thunar-volman
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
-    (GPUOffloadApp pkgs.godot_4 "org.godotengine.Godot4")
+    pkgs.godot_4
     pkgs.vesktop
     pkgs.helio-workstation
     pkgs.pre-commit
