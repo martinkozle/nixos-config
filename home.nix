@@ -78,6 +78,10 @@ in
     pkgs.libsForQt5.okular
     pkgs.cargo
     pkgs.rustc
+    pkgs.networkmanagerapplet
+    pkgs.libreoffice-fresh
+    pkgs.hunspell
+    pkgs.hunspellDicts.en_US
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
