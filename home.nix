@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  pkgs-unstable,
   lib,
   ...
 }:
@@ -67,7 +68,7 @@ in
     pkgs.xfce.thunar-volman
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
-    pkgs.godot_4
+    pkgs-unstable.godot_4
     pkgs.vesktop
     pkgs.helio-workstation
     pkgs.pre-commit
