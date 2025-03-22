@@ -59,7 +59,7 @@ in
     pkgs.btop
     pkgs.seahorse
     pkgs.vscode.fhs
-    pkgs.nixpkgs-fmt
+    pkgs.nixfmt-rfc-style
     pkgs.nixd
     pkgs.uv
     pkgs.aoc-cli
