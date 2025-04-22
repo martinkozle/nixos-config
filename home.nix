@@ -499,6 +499,7 @@ in
   };
 
   services.network-manager-applet.enable = true;
+  services.blueman-applet.enable = true;
 
   programs.kitty.enable = true;
 
@@ -519,6 +520,7 @@ in
       "systemctl --user start hyprpolkitagent"
       "uwsm app -- wl-paste --type text --watch cliphist store"
       "uwsm app -- wl-paste --type image --watch cliphist store"
+      "uwsm app -- blueman-tray"
     ];
     env = [
       "GSK_RENDERER,gl"
