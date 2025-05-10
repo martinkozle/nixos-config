@@ -21,7 +21,7 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
-  fileSystems."/nas" = {
+  fileSystems."/mnt/nas" = {
     device = "debian:/nas";
     fsType = "nfs";
     options = [
