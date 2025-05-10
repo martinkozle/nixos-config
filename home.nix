@@ -62,7 +62,7 @@ in
     pkgs.vscode.fhs
     pkgs.nixfmt-rfc-style
     pkgs.nixd
-    pkgs.uv
+    pkgs-unstable.uv
     pkgs.aoc-cli
     pkgs.xfce.thunar
     pkgs.xfce.thunar-volman
@@ -83,6 +83,8 @@ in
     pkgs.libreoffice-fresh
     pkgs.hunspell
     pkgs.hunspellDicts.en_US
+    pkgs.teams-for-linux
+    pkgs.signal-desktop
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
