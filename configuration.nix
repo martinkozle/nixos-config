@@ -21,6 +21,12 @@
   # Enable networking
   networking.networkmanager.enable = true;
 
+  networking.firewall = {
+    allowedUDPPorts = [ 51820 ];
+  };
+
+  networking.wg-quick.interfaces.home.configFile = "/root/.wireguard/peer_p1g3/peer_p1g3.conf";
+
   fileSystems."/mnt/nas" = {
     device = "debian:/nas";
     fsType = "nfs";
