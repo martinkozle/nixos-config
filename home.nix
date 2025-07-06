@@ -85,6 +85,8 @@ in
     pkgs.hunspellDicts.en_US
     pkgs.teams-for-linux
     pkgs.signal-desktop
+    pkgs.gnumake
+    pkgs.cmake
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
