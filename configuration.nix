@@ -27,7 +27,7 @@
   networking.wg-quick.interfaces = {
     home = {
       configFile = "/etc/wireguard/peer_p1g3/peer_p1g3.conf";
-      networking.wg-quick.interfaces.home.autostart = false;
+      autostart = false;
     };
   };
 
