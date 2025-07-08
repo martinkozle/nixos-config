@@ -3,7 +3,6 @@
   pkgs,
   ...
 }:
-
 {
   imports = [
     # Include the results of the hardware scan.
@@ -25,7 +24,12 @@
     allowedUDPPorts = [ 51820 ];
   };
 
-  networking.wg-quick.interfaces.home.configFile = "/root/.wireguard/peer_p1g3/peer_p1g3.conf";
+  networking.wg-quick.interfaces = {
+    home = {
+      configFile = "/etc/wireguard/peer_p1g3/peer_p1g3.conf";
+      networking.wg-quick.interfaces.home.autostart = false;
+    };
+  };
 
   fileSystems."/mnt/nas" = {
     device = "debian:/nas";
