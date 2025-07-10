@@ -99,6 +99,14 @@
     pkgs.libsecret
   ];
 
+  fonts = {
+    fontDir.enable = true;
+    packages = [
+      pkgs.monaspace
+      pkgs.nerd-fonts.monaspace
+    ];
+  };
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
