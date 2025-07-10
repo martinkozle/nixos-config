@@ -512,7 +512,13 @@ in
   services.network-manager-applet.enable = true;
   services.blueman-applet.enable = true;
 
-  programs.kitty.enable = true;
+  programs.kitty = {
+    enable = true;
+    font = {
+      name = "DejaVu Sans Mono";
+      size = 10;
+    };
+  };
 
   wayland.windowManager.hyprland = {
     enable = true;
