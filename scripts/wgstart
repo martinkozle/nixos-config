@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+  echo "Usage: wgstart <interface>"
+  exit 1
+fi
+
+sudo systemctl start "wg-quick-$1.service"

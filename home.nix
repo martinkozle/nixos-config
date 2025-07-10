@@ -10,6 +10,13 @@ let
   myAliases = {
     ll = "ls -l";
   };
+
+  scriptDir = ./scripts;
+  scriptFiles = builtins.attrNames (builtins.readDir scriptDir);
+
+  scriptBins = builtins.map (
+    name: pkgs.writeShellScriptBin name (builtins.readFile (scriptDir + "/${name}"))
+  ) scriptFiles;
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -87,7 +94,7 @@ in
     pkgs.signal-desktop
     pkgs.gnumake
     pkgs.cmake
-  ];
+  ] ++ scriptBins;
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.

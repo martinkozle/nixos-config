@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+  echo "Usage: wgstop <interface>"
+  exit 1
+fi
+
+sudo systemctl stop "wg-quick-$1.service"
