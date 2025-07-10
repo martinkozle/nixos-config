@@ -573,6 +573,12 @@ in
       pseudotile = true;
       preserve_split = true;
     };
+    device = [
+      {
+        name = "synps/2-synaptics-touchpad";
+        accel_profile = "adaptive";
+      }
+    ];
     input = {
       kb_layout = "us,us,mk";
       kb_variant = "dvorak,,";
@@ -582,10 +588,8 @@ in
         disable_while_typing = true;
         natural_scroll = true;
         tap-to-click = true;
-        clickfinger_behavior = true;
-        scroll_factor = 0.2;
+        scroll_factor = 1.0;
       };
-      force_no_accel = true;
       accel_profile = "flat";
       sensitivity = 0;
     };
@@ -597,6 +601,7 @@ in
       "float,class:(copyq)"
       "move onscreen cursor,class:(copyq)"
       "suppressevent maximize, class:.*"
+      "scrolltouchpad 2, class:^(kitty)$"
     ];
     bind = [
       "$mod, DELETE, exec, uwsm app -- hyprlock"
