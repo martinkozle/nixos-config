@@ -583,6 +583,7 @@ in
       # col.inactive_border = "rgba(595959aa)";
       layout = "dwindle";
     };
+    render.new_render_scheduling = true;
     decoration = {
       rounding = 0;
       blur = {
