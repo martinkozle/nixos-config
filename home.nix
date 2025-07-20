@@ -557,14 +557,14 @@ in
       }
       {
         output = "desc:Dell Inc. AW3423DWF BDC42S3";
-        mode = "highres";
+        mode = "3440x1440@165";
         position = "auto-right";
         scale = 1;
         vrr = 1;
       }
       {
         output = "desc:Microstep MSI MAG241CR 0x000001DA";
-        mode = "highres";
+        mode = "1920x1080@144";
         position = "auto-right";
         scale = 1;
       }
