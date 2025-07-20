@@ -3,6 +3,7 @@
   pkgs,
   pkgs-unstable,
   lib,
+  options,
   ...
 }:
 
@@ -526,6 +527,11 @@ in
     systemd.enable = false;
   };
 
+  wayland.windowManager.hyprland.importantPrefixes =
+    options.wayland.windowManager.hyprland.importantPrefixes.default
+    ++ [
+      "output"
+    ];
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
     "$terminal" = "kitty";
@@ -542,11 +548,32 @@ in
     env = [
       "GSK_RENDERER,gl"
     ];
-    monitor = [
-      "desc:BOE 0x086E,highres,0x0,1"
-      "desc:Dell Inc. AW3423DWF BDC42S3,3440x1440@100,auto-right,1,vrr,1"
-      "desc:Microstep MSI MAG241CR 0x000001DA,1920x1080@60,auto-right,1"
-      ",preferred,auto,1"
+    monitorv2 = [
+      {
+        output = "desc:BOE 0x086E";
+        mode = "highres";
+        position = "0x0";
+        scale = 1;
+      }
+      {
+        output = "desc:Dell Inc. AW3423DWF BDC42S3";
+        mode = "highres";
+        position = "auto-right";
+        scale = 1;
+        vrr = 1;
+      }
+      {
+        output = "desc:Microstep MSI MAG241CR 0x000001DA";
+        mode = "highres";
+        position = "auto-right";
+        scale = 1;
+      }
+      {
+        output = "";
+        mode = "preferred";
+        position = "auto";
+        scale = 1;
+      }
     ];
     general = {
       gaps_in = 0;
