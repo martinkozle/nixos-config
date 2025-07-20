@@ -587,10 +587,11 @@ in
     decoration = {
       rounding = 0;
       blur = {
-        enabled = true;
+        enabled = false;
         size = 3;
         passes = 1;
       };
+      shadow.enabled = false;
     };
     animations = {
       enabled = true;
