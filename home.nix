@@ -64,7 +64,7 @@ in
     pkgs.playerctl
     pkgs.pavucontrol
     pkgs.brave
-    pkgs.joplin-desktop
+    pkgs-unstable.joplin-desktop
     pkgs.btop
     pkgs.seahorse
     pkgs.vscode.fhs
@@ -95,6 +95,7 @@ in
     pkgs.signal-desktop
     pkgs.gnumake
     pkgs.cmake
+    pkgs.jellyfin-media-player
   ] ++ scriptBins;
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
