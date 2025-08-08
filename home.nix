@@ -97,6 +97,7 @@ in
     pkgs.cmake
     pkgs.jellyfin-media-player
     pkgs.zip
+    pkgs.tealdeer
   ] ++ scriptBins;
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
