@@ -8,6 +8,7 @@
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    git-hooks.url = "github:cachix/git-hooks.nix";
   };
 
   outputs =
@@ -25,6 +26,25 @@
     in
     {
       formatter.${system} = pkgs.nixfmt-rfc-style;
+      checks.${system} = {
+        pre-commit-check = inputs.git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            nixfmt-rfc-style.enable = true;
+          };
+        };
+      };
+      devShells.${system} = {
+        default =
+          let
+            pkgs = nixpkgs.legacyPackages.${system};
+            inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
+          in
+          pkgs.mkShell {
+            inherit shellHook;
+            buildInputs = enabledPackages;
+          };
+      };
       nixosConfigurations = {
         p1g3 = nixpkgs.lib.nixosSystem {
           inherit system;
