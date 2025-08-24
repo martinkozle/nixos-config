@@ -98,7 +98,8 @@ in
     pkgs.jellyfin-media-player
     pkgs.zip
     pkgs.tealdeer
-  ] ++ scriptBins;
+  ]
+  ++ scriptBins;
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
