@@ -225,6 +225,13 @@ in
     package = pkgs.vscode.fhs;
   };
 
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep 5 --keep-since 7d";
+    flake = "/home/martin/nixos-config";
+  };
+
   programs.rofi = {
     theme = "Arc-Dark";
   };
