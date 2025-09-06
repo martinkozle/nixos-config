@@ -15,7 +15,6 @@
     {
       self,
       nixpkgs,
-      nixpkgs-unstable,
       home-manager,
       nixos-hardware,
       ...
@@ -37,7 +36,6 @@
       devShells.${system} = {
         default =
           let
-            pkgs = nixpkgs.legacyPackages.${system};
             inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
           in
           pkgs.mkShell {
@@ -52,20 +50,13 @@
           modules = [
             nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
             ./configuration.nix
-          ];
-        };
-      };
-      homeConfigurations = {
-        martin = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = {
-            pkgs-unstable = import nixpkgs-unstable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-          };
-          modules = [
-            ./home.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.users.martin = ./home.nix;
+            }
           ];
         };
       };

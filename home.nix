@@ -1,13 +1,18 @@
 {
   config,
   pkgs,
-  pkgs-unstable,
   lib,
+  inputs,
   options,
   ...
 }:
 
 let
+  pkgs-unstable = import inputs.nixpkgs-unstable {
+    system = pkgs.system;
+    config.allowUnfree = true;
+  };
+
   myAliases = {
     ll = "ls -l";
   };
@@ -33,8 +38,6 @@ in
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
   home.stateVersion = "24.11"; # Please read the comment before changing.
-
-  nixpkgs.config.allowUnfree = true;
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
