@@ -232,6 +232,10 @@ in
     flake = "/home/martin/nixos-config";
   };
 
+  programs.firefox = {
+    enable = true;
+  };
+
   programs.rofi = {
     theme = "Arc-Dark";
   };
