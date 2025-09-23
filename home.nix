@@ -646,10 +646,9 @@ in
       accel_profile = "flat";
       sensitivity = 0;
     };
-    gestures = {
-      workspace_swipe = true;
-      workspace_swipe_min_fingers = true;
-    };
+    gesture = [
+      "4, horizontal, workspace"
+    ];
     windowrulev2 = [
       "float,class:(copyq)"
       "move onscreen cursor,class:(copyq)"
