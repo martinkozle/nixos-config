@@ -101,6 +101,8 @@ in
     pkgs.jellyfin-media-player
     pkgs.zip
     pkgs.tealdeer
+    pkgs.s-tui
+    pkgs.stress-ng
   ]
   ++ scriptBins;
 
