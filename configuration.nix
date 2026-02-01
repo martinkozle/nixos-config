@@ -23,6 +23,9 @@
   networking.networkmanager.enable = true;
 
   networking.firewall = {
+    # GGJ 2026
+    allowedTCPPorts = [ 12345 ];
+    # WireGuard
     allowedUDPPorts = [ 51820 ];
   };
 

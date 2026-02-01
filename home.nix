@@ -56,7 +56,7 @@ in
     # '')
     pkgs.killall
     pkgs.clang
-    pkgs.rofi-wayland
+    pkgs.rofi
     pkgs.rofimoji
     pkgs.cliphist
     pkgs.wl-clipboard
@@ -79,7 +79,7 @@ in
     pkgs.xfce.thunar-volman
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
-    pkgs.godot_4
+    pkgs.godotPackages_4_6.godot
     pkgs.vesktop
     pkgs.helio-workstation
     pkgs.pre-commit
@@ -87,7 +87,7 @@ in
     pkgs.shotcut
     pkgs.vlc
     pkgs.unzip
-    pkgs.libsForQt5.okular
+    # pkgs.libsForQt5.okular
     pkgs.cargo
     pkgs.rustc
     pkgs.networkmanagerapplet
@@ -651,9 +651,9 @@ in
     gesture = [
       "4, horizontal, workspace"
     ];
-    windowrulev2 = [
-      "float,class:(copyq)"
-      "move onscreen cursor,class:(copyq)"
+    windowrulev = [
+      "float,class:^(copyq)$"
+      "move onscreen cursor,class:^(copyq)$"
       "suppressevent maximize, class:.*"
       "scrolltouchpad 2, class:^(kitty)$"
     ];
