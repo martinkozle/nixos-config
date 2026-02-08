@@ -103,6 +103,8 @@ in
     pkgs.tealdeer
     pkgs.s-tui
     pkgs.stress-ng
+    pkgs.http-server
+    pkgs.prismlauncher
   ]
   ++ scriptBins;
 
