@@ -1,0 +1,18 @@
+{
+    // check: https://github.com/nix-community/nixd/blob/main/nixd/docs/configuration.md
+    "nix.serverSettings": {
+        "nixd": {
+            "nixpkgs": {
+                "expr": "(builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs { }"
+            },
+            "options": {
+                "nixos": {
+                    "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.p1g3.options"
+                },
+                "home-manager": {
+                    "expr": "(builtins.getFlake (builtins.toString ./.)).nixosConfigurations.p1g3.options.home-manager.users.type.getSubOptions []"
+                }
+            }
+        }
+    },
+}
