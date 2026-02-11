@@ -87,7 +87,7 @@ in
     pkgs.shotcut
     pkgs.vlc
     pkgs.unzip
-    # pkgs.libsForQt5.okular
+    pkgs.kdePackages.okular
     pkgs.cargo
     pkgs.rustc
     pkgs.networkmanagerapplet
