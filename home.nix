@@ -247,6 +247,16 @@ in
     theme = "Arc-Dark";
   };
 
+  programs.obs-studio = {
+    enable = true;
+
+    package = (
+      pkgs.obs-studio.override {
+        cudaSupport = true;
+      }
+    );
+  };
+
   # TODO: Remove eventually. Issue: https://github.com/nix-community/home-manager/issues/5899
   systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
 
@@ -652,6 +662,8 @@ in
     };
     gesture = [
       "4, horizontal, workspace"
+      "2, left, dispatcher, exec, ytool key XF86Back"
+      "2, right, dispatcher, exec, ytool key XF86Forward"
     ];
     windowrulev = [
       "float,class:^(copyq)$"
