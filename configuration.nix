@@ -221,6 +221,10 @@
     enableSSHSupport = true;
   };
 
+  programs.ydotool.enable = true;
+
+  programs.localsend.enable = true;
+
   # Enable OpenGL
   hardware.graphics = {
     enable = true;
