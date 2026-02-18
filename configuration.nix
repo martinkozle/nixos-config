@@ -23,10 +23,14 @@
   networking.networkmanager.enable = true;
 
   networking.firewall = {
-    # GGJ 2026
-    allowedTCPPorts = [ 12345 ];
-    # WireGuard
-    allowedUDPPorts = [ 51820 ];
+    allowedUDPPorts = [
+      # GGJ 2026
+      12344
+      12345
+      12346
+      # WireGuard
+      51820
+    ];
   };
 
   networking.wg-quick.interfaces = {
