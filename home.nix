@@ -70,7 +70,7 @@ in
     pkgs-unstable.joplin-desktop
     pkgs.btop
     pkgs.seahorse
-    pkgs.vscode.fhs
+    pkgs-unstable.vscode.fhs
     pkgs.nixfmt-rfc-style
     pkgs.nixd
     pkgs-unstable.uv
@@ -229,7 +229,7 @@ in
 
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode.fhs;
+    package = pkgs-unstable.vscode.fhs;
   };
 
   programs.nh = {
