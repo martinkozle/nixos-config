@@ -80,7 +80,7 @@ in
     pkgs.xfce.thunar-archive-plugin
     pkgs.xfce.thunar-media-tags-plugin
     pkgs.godotPackages_4_6.godot
-    pkgs.vesktop
+    pkgs-unstable.vesktop
     pkgs.helio-workstation
     pkgs.pre-commit
     pkgs.audacity
@@ -105,6 +105,8 @@ in
     pkgs.stress-ng
     pkgs.http-server
     pkgs.prismlauncher
+    pkgs.nodejs
+    pkgs.steam-run
   ]
   ++ scriptBins;
 
