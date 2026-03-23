@@ -179,6 +179,8 @@ in
 
   nixGL.vulkan.enable = true;
 
+  imports = [ inputs.lazyvim.homeManagerModules.default ];
+
   programs.bash = {
     enable = true;
     shellAliases = myAliases;
@@ -257,6 +259,20 @@ in
         cudaSupport = true;
       }
     );
+  };
+
+  programs.lazyvim = {
+    enable = true;
+
+    installCoreDependencies = true;
+    extras = {
+      lang.nix.enable = true;
+      lang.python = {
+        enable = true;
+        installDependencies = true;
+        installRuntimeDependencies = true;
+      };
+    };
   };
 
   # TODO: Remove eventually. Issue: https://github.com/nix-community/home-manager/issues/5899

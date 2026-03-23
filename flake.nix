@@ -9,6 +9,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     git-hooks.url = "github:cachix/git-hooks.nix";
+    lazyvim.url = "github:pfassina/lazyvim-nix";
   };
 
   outputs =
