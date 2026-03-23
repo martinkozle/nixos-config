@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "nix-best-practices": {
+      "source": "0xbigboss/claude-code",
+      "sourceType": "github",
+      "computedHash": "61556cac2f029a37e2884ec977aa06122c3b5595ee1f5a1ec254dfadafa61c10"
+    },
+    "nixos-best-practices": {
+      "source": "lihaoze123/my-skills",
+      "sourceType": "github",
+      "computedHash": "4667cb5f7e5cc14e84b0b8fc63e763be92b538bbbee74191e5b302ba42ff82be"
+    }
+  }
+}
