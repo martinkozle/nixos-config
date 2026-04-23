@@ -107,6 +107,7 @@ in
     pkgs.prismlauncher
     pkgs.nodejs
     pkgs.steam-run
+    inputs.codex-cli-nix.packages.${pkgs.system}.default
   ]
   ++ scriptBins;
 

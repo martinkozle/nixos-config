@@ -10,6 +10,10 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     git-hooks.url = "github:cachix/git-hooks.nix";
     lazyvim.url = "github:pfassina/lazyvim-nix";
+    codex-cli-nix = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
