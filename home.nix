@@ -697,7 +697,7 @@ in
       "$mod, Q, killactive,"
       "$mod, F, togglefloating,"
       "$mod, P, pseudo,"
-      "$mod, X, togglesplit,"
+      "$mod, X, layoutmsg, togglesplit"
       "$mod, left, movefocus, l"
       "$mod, H, movefocus, l"
       "$mod, right, movefocus, r"
