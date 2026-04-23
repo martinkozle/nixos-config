@@ -9,7 +9,7 @@
 
 let
   pkgs-unstable = import inputs.nixpkgs-unstable {
-    system = pkgs.system;
+    system = pkgs.stdenv.hostPlatform.system;
     config.allowUnfree = true;
   };
 
@@ -107,7 +107,7 @@ in
     pkgs.prismlauncher
     pkgs.nodejs
     pkgs.steam-run
-    inputs.codex-cli-nix.packages.${pkgs.system}.default
+    inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
   ]
   ++ scriptBins;
 
@@ -178,7 +178,7 @@ in
     };
   };
 
-  nixGL.vulkan.enable = true;
+  targets.genericLinux.nixGL.vulkan.enable = true;
 
   imports = [ inputs.lazyvim.homeManagerModules.default ];
 
@@ -222,14 +222,14 @@ in
   programs.git = {
     enable = true;
     lfs.enable = true;
-    extraConfig = {
+    settings = {
       credential.helper = "${pkgs.git.override { withLibsecret = true; }}/bin/git-credential-libsecret";
       init.defaultBranch = "main";
+      user.email = "martinkozle@yahoo.com";
+      user.name = "Martin Popovski";
     };
     signing.key = "847633C95FC29494";
     signing.signByDefault = true;
-    userName = "Martin Popovski";
-    userEmail = "martinkozle@yahoo.com";
   };
 
   programs.vscode = {
@@ -271,7 +271,7 @@ in
       lang.python = {
         enable = true;
         installDependencies = true;
-        installRuntimeDependencies = true;
+        installRuntimeDependencies = false;
       };
     };
   };
