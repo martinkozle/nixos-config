@@ -1,0 +1,4 @@
+[mcp_servers.nixos]
+args = ["mcp-nixos"]
+command = "uvx"
+enabled = true
