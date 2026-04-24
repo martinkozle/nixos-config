@@ -632,7 +632,7 @@ in
       border_size = 1;
       # col.active_border = "rgba(33ccffee) rgba(00ff99ee) 45deg";
       # col.inactive_border = "rgba(595959aa)";
-      layout = "dwindle";
+      layout = "scrolling";
     };
     render.new_render_scheduling = false;
     decoration = {
@@ -658,6 +658,9 @@ in
     dwindle = {
       pseudotile = true;
       preserve_split = true;
+    };
+    scrolling = {
+      column_width = 1.0;
     };
     device = [
       {
@@ -737,6 +740,11 @@ in
       "$mod, mouse_up, workspace, e-1"
       "$mod ALT, H, workspace, e-1"
       "$mod ALT, left, workspace, e-1"
+      "$mod CTRL, L, layoutmsg, swapcol r"
+      "$mod CTRL, right, layoutmsg, swapcol r"
+      "$mod CTRL, H, layoutmsg, swapcol l"
+      "$mod CTRL, left, layoutmsg, swapcol l"
+      "$mod, R, layoutmsg, colresize +conf"
       "$mod SHIFT, E, exec, uwsm app -- $fileManager"
       "$mod SHIFT, RETURN, exec, uwsm app -- $terminal"
       "$mod, SPACE, exec, uwsm app -- rofi -show drun"
