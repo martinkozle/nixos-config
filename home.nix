@@ -71,7 +71,7 @@ in
     pkgs.btop
     pkgs.seahorse
     pkgs-unstable.vscode.fhs
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.nixd
     pkgs-unstable.uv
     pkgs.aoc-cli
@@ -577,6 +577,7 @@ in
 
   wayland.windowManager.hyprland = {
     enable = true;
+    configType = "hyprlang";
     systemd.variables = [ "--all" ];
     systemd.enable = false;
   };
@@ -659,7 +660,6 @@ in
       ];
     };
     dwindle = {
-      pseudotile = true;
       preserve_split = true;
     };
     scrolling = {
