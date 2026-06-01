@@ -75,10 +75,10 @@ in
     pkgs.nixd
     pkgs-unstable.uv
     pkgs.aoc-cli
-    pkgs.xfce.thunar
-    pkgs.xfce.thunar-volman
-    pkgs.xfce.thunar-archive-plugin
-    pkgs.xfce.thunar-media-tags-plugin
+    pkgs.thunar
+    pkgs.thunar-volman
+    pkgs.thunar-archive-plugin
+    pkgs.thunar-media-tags-plugin
     pkgs.godotPackages_4_6.godot
     pkgs-unstable.vesktop
     pkgs.helio-workstation
@@ -162,6 +162,8 @@ in
   gtk = {
     enable = true;
 
+    gtk4.theme = null;
+
     theme = {
       package = pkgs.flat-remix-gtk;
       name = "Flat-Remix-GTK-Grey-Darkest";
@@ -221,9 +223,9 @@ in
 
   programs.git = {
     enable = true;
+    package = pkgs.gitFull;
     lfs.enable = true;
     settings = {
-      credential.helper = "${pkgs.git.override { withLibsecret = true; }}/bin/git-credential-libsecret";
       init.defaultBranch = "main";
       user.email = "martinkozle@yahoo.com";
       user.name = "Martin Popovski";
@@ -246,6 +248,7 @@ in
 
   programs.firefox = {
     enable = true;
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
   };
 
   programs.rofi = {
