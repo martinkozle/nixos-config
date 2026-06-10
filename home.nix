@@ -107,7 +107,14 @@ in
     pkgs.prismlauncher
     pkgs.nodejs
     pkgs.steam-run
-    pkgs-unstable.opencode
+    (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        substituteInPlace packages/script/src/index.ts \
+          --replace-fail \
+            'if (!semver.satisfies(process.versions.bun, expectedBunVersionRange)) {' \
+            'if (false && !semver.satisfies(process.versions.bun, expectedBunVersionRange)) {'
+      '';
+    }))
     inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
   ]
   ++ scriptBins;

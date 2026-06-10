@@ -655,6 +655,26 @@
         "type": "indirect"
       }
     },
+    "opencode": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781122144,
+        "narHash": "sha256-1qJcQq3h1T6a8QezQ4R2dy3yDCDhqUA+kzZN+t7Ma/Q=",
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "6e2bcafd34174297ffdfaf0450861a3f536cf62c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -687,7 +707,8 @@
         "lazyvim": "lazyvim",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_5",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "opencode": "opencode"
       }
     },
     "systems": {
