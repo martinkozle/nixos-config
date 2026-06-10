@@ -73,6 +73,7 @@ in
     pkgs-unstable.vscode.fhs
     pkgs.nixfmt
     pkgs.nixd
+    pkgs-unstable.ty
     pkgs-unstable.uv
     pkgs.aoc-cli
     pkgs.thunar
@@ -283,6 +284,42 @@ in
         enable = true;
         installDependencies = true;
         installRuntimeDependencies = false;
+      };
+    };
+  };
+
+  programs.zed-editor = {
+    enable = true;
+    extensions = [
+      "nix"
+      "toml"
+      "yaml"
+      "rust"
+      "python"
+    ];
+    userSettings = {
+      theme = {
+        mode = "dark";
+        dark = "One Dark";
+        light = "One Light";
+      };
+      hour_format = "hour24";
+      vim_mode = true;
+      base_keymap = "VSCode";
+      languages = {
+        Nix = {
+          language_servers = [
+            "nixd"
+            "!nil"
+          ];
+        };
+        Python = {
+          language_servers = [
+            "ty"
+            "ruff"
+            "!basedpyright"
+          ];
+        };
       };
     };
   };
