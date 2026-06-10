@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
+    },
     "nix-best-practices": {
       "source": "0xbigboss/claude-code",
       "sourceType": "github",
@@ -11,6 +17,18 @@
       "sourceType": "github",
       "skillPath": "skills/nixos-best-practices/SKILL.md",
       "computedHash": "eef05314101f6ba0ce1b6743eed54432912af05d643e433c101a524f6adf6615"
+    },
+    "systematic-debugging": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "computedHash": "7246fdd3a795fc3daff0af72044ca99bf836e4e6a46844742858786fdfb86488"
+    },
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "computedHash": "a6d6d475f1d01c201937fa0c306e55b7056b02023ad615bc92f57514e831dd31"
     }
   }
 }
