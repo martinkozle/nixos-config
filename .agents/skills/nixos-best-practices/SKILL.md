@@ -5,11 +5,33 @@ license: MIT
 metadata:
   author: chumeng
   version: "1.0.0"
+  critical: READ_DOCUMENTATION_FIRST
 ---
 
 # Configuring NixOS Systems with Flakes
 
 Configure NixOS systems with flakes, manage overlays properly, and structure configurations for maintainability.
+
+## ⚠️ CRITICAL: Read Before Making Changes
+
+**BEFORE making ANY NixOS configuration changes, you MUST:**
+
+1. **Review relevant rule files** from the Quick Reference below
+2. **Check common-mistakes.md** to avoid known pitfalls
+3. **Check troubleshooting.md** for systematic debugging approach
+4. **Follow existing patterns** in the codebase
+
+**Do NOT start coding until you've read the applicable documentation.**
+
+Most configuration errors happen from not reading the rules first. The 5 minutes you spend reading will save hours of debugging.
+
+## Red Flags - STOP BEFORE CODING
+
+- **"I can just try this option"** → Check if it exists in nixpkgs/Home Manager first
+- **"Let me experiment with different approaches"** → Read the docs, don't guess
+- **"This should work"** → Verify syntax and availability in nixpkgs
+- **Making multiple rebuild attempts** → You're missing systematic debugging
+- **"I remember this works"** → Docs change, verify current approach
 
 ## Core Principle
 

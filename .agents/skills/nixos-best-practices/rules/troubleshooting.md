@@ -106,6 +106,108 @@ nix flake update
 nix flake lock update-input nixpkgs
 ```
 
+### "path '.../module-name' does not exist"
+
+**Cause:** Import path doesn't match actual file/directory structure.
+
+**Debug:**
+```bash
+# Check what files exist
+ls -la home-manager/shell/
+
+# Verify import syntax
+grep "imports" home-manager/shell/default.nix
+```
+
+**Fix:**
+```nix
+# ❌ WRONG if agent-browser.nix is a file
+{
+  imports = [ ./agent-browser ];  # Looks for agent-browser/default.nix
+}
+
+# ✅ CORRECT for file
+{
+  imports = [ ./agent-browser.nix ];  # Imports the file
+}
+
+# ✅ CORRECT for directory with default.nix
+# agent-browser/
+#   default.nix
+{
+  imports = [ ./agent-browser ];  # Imports agent-browser/default.nix
+}
+```
+
+**Rule:** In `imports` list:
+- `./name` → directory `name/default.nix`
+- `./name.nix` → file `name.nix`
+
+## Third-Party Tools on NixOS (Playwright, Electron, etc.)
+
+### Systematic Debugging for Missing Libraries
+
+**Symptom:** `error while loading shared libraries: libxxx.so: not found`
+
+**Common mistake:** Adding packages one at a time and repeatedly rebuilding.
+
+**Correct approach:**
+
+```bash
+# 1. Check ALL missing libraries at once
+ldd /path/to/binary 2>&1 | grep "not found"
+
+# 2. Find which packages provide these libraries
+nix-locate libxxx.so
+
+# 3. Add ALL missing packages in a SINGLE rebuild
+# Don't rebuild multiple times!
+```
+
+### Playwright/Chromium on NixOS
+
+**Key insight:** Playwright browsers downloaded via npm don't work on NixOS due to missing libraries.
+
+**Two solutions:**
+
+1. **Use LD_LIBRARY_PATH** (for downloaded browsers):
+```nix
+home.sessionVariables = {
+  LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
+    # Add ALL Chromium dependencies at once
+    alsa-lib atk cairo cups dbus expat glib gtk3
+    libdrm libgbm libxkbcommon mesa nspr nss
+    pango systemd udev xorg.libX11 xorg.libXcomposite
+    # ... see full list below
+  ]);
+};
+```
+
+2. **Use Nix-provided browsers** (recommended):
+```nix
+{
+  home.packages = [ pkgs.playwright-driver.browsers ];
+  home.sessionVariables = {
+    PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+  };
+}
+```
+
+**Common Chromium dependencies reference:**
+```nix
+with pkgs; [
+  alsa-lib at-spi2-atk at-spi2-core atk
+  cairo cups dbus expat gdk-pixbuf glib gtk3
+  libdrm libgbm libxkbcommon mesa nspr nss
+  pango systemd udev xorg.libX11 xorg.libXcomposite
+  xorg.libXdamage xorg.libXext xorg.libXfixes
+  xorg.libXrandr xorg.libxcb xorg.libxshmfence
+]
+```
+
+**Remember:** Check `ldd` output first, then add ALL missing libraries in one rebuild.
+
 ## Overlay Not Applied
 
 **Symptom:** Package from overlay not found.

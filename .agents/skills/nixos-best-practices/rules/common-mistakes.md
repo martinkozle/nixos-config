@@ -308,6 +308,101 @@ Use `inputs.*` syntax.
 }
 ```
 
+## Mistake 11: Confusing Module Import Paths
+
+### Symptom
+`error: path '.../module-name' does not exist`
+
+### Cause
+Using wrong import syntax for file vs directory in `imports` list.
+
+### Solution
+Use `./module-name.nix` for files, `./module-name/` for directories.
+
+```nix
+# ❌ WRONG: File imported as directory
+# hosts/home/default.nix
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./agent-browser  # Looks for agent-browser/default.nix, not agent-browser.nix!
+  ];
+}
+
+# ✅ CORRECT: Include file extension
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./agent-browser.nix  # Imports agent-browser.nix file
+  ];
+}
+
+# ✅ ALSO CORRECT: Directory import
+# Directory structure:
+# modules/
+#   agent-browser/
+#     default.nix
+{
+  imports = [
+    ./modules/agent-browser  # Imports modules/agent-browser/default.nix
+  ];
+}
+```
+
+**Rule**: In Nix `imports`:
+- `./name` → looks for `name/default.nix`
+- `./name.nix` → looks for `name.nix` file
+
+## Mistake 12: Using Non-Existent Home Manager Options
+
+### Symptom
+`error: The option 'programs.xxx' does not exist` or similar.
+
+### Cause
+Assuming an option exists without checking nixpkgs/Home Manager documentation.
+
+### Solution
+**ALWAYS verify options exist before using them:**
+
+```bash
+# Check if option exists in Home Manager
+nix eval nixpkgs#home-manager.options.programs.npm.enable
+
+# Search for available options
+nix search nixpkgs home-manager programs
+
+# Check package attributes
+nix eval nixpkgs#pkgs.hello.outputs
+```
+
+**Common non-existent options to avoid:**
+- `programs.npm` - doesn't exist, use `home.file.".npmrc"` instead
+- `buildFHSUserEnv` in Home Manager pkgs - not available, use system-level or different approach
+
+### Correct Approach
+
+```nix
+# ❌ WRONG: Using non-existent option
+{
+  programs.npm.enable = true;  # Error!
+}
+
+# ✅ CORRECT: Use home.file for config files
+{
+  home.file.".npmrc".text = ''
+    prefix=$HOME/.npm-global
+  '';
+}
+
+# ✅ CORRECT: Check what's available first
+# Run: nix search nixpkgs home-manager programs
+```
+
+**Rule:** Before using ANY option or function:
+1. Check if it exists in nixpkgs/Home Manager
+2. Read examples from official docs
+3. Look at working configurations in the codebase
+
 ## Quick Checklist
 
 Before committing config changes:
@@ -321,3 +416,6 @@ Before committing config changes:
 - [ ] Tested with rebuild
 - [ ] Using Nix paths, not absolute paths
 - [ ] Correct input references for flake packages
+- [ ] Import paths match file/directory structure (include .nix for files)
+- [ ] Verified options exist in nixpkgs/Home Manager before using
+- [ ] Checked for missing libraries with `ldd` before rebuilding
