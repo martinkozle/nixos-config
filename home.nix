@@ -108,6 +108,9 @@ in
     pkgs.prismlauncher
     pkgs.nodejs
     pkgs.steam-run
+    # PATCH: opencode enforces a specific bun version range. This override
+    # bypasses the check so the bundled bun version works. Remove when
+    # upstream opencode relaxes or fixes the version constraint.
     (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
       postPatch = (old.postPatch or "") + ''
         substituteInPlace packages/script/src/index.ts \
@@ -189,6 +192,7 @@ in
     };
   };
 
+  # NVIDIA: nixGL wrapper for Vulkan dispatch on Optimus systems
   targets.genericLinux.nixGL.vulkan.enable = true;
 
   imports = [ inputs.lazyvim.homeManagerModules.default ];
@@ -264,6 +268,8 @@ in
     theme = "Arc-Dark";
   };
 
+  # NVIDIA: OBS uses CUDA for hardware encoding on P1 Gen 3.
+  # On T14s (no dGPU), this should use VA-API instead (cudaSupport = false).
   programs.obs-studio = {
     enable = true;
 
@@ -458,7 +464,7 @@ in
       #mode,
       #mpd {
           padding: 0 10px;
-          margin: 6px 3px; 
+          margin: 6px 3px;
           color: #000000;
       }
 
@@ -632,6 +638,9 @@ in
     ++ [
       "output"
     ];
+  # NOTE: All `exec` commands in keybinds and `exec-once` are wrapped
+  # with `uwsm app --` because this config uses UWSM as the Wayland
+  # session manager. When adding new exec commands, always wrap them.
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
     "$terminal" = "kitty";
