@@ -18,6 +18,12 @@
       "skillPath": "skills/nixos-best-practices/SKILL.md",
       "computedHash": "eef05314101f6ba0ce1b6743eed54432912af05d643e433c101a524f6adf6615"
     },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+    },
     "systematic-debugging": {
       "source": "obra/superpowers",
       "sourceType": "github",
