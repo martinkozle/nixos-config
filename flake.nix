@@ -18,57 +18,49 @@
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      nixos-hardware,
-      ...
-    }@inputs:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      formatter.${system} = pkgs.nixfmt;
-      checks.${system} = {
-        pre-commit-check = inputs.git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = {
-            nixfmt.enable = true;
-          };
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+
+      imports = [
+        (inputs.import-tree.matchNot ".*hardware-configuration.*" ./modules)
+      ];
+
+      flake = {
+        schemas = {
+          checks = inputs.flake-parts.flakeSchema.applyCheckSchema;
         };
       };
-      devShells.${system} = {
-        default =
-          let
-            inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
-          in
-          pkgs.mkShell {
-            inherit shellHook;
-            buildInputs = enabledPackages;
+
+      perSystem =
+        {
+          pkgs,
+          self',
+          ...
+        }:
+        {
+          formatter = pkgs.nixfmt;
+
+          checks.pre-commit-check = inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+            src = ./.;
+            hooks = {
+              nixfmt.enable = true;
+            };
           };
-      };
-      nixosConfigurations = {
-        p1g3 = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit inputs; };
-          modules = [
-            nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
-            ./configuration.nix
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.martin = ./home.nix;
-            }
-          ];
+
+          devShells.default =
+            let
+              inherit (self'.checks.pre-commit-check) shellHook enabledPackages;
+            in
+            pkgs.mkShell {
+              inherit shellHook;
+              buildInputs = enabledPackages;
+            };
         };
-      };
     };
 }
