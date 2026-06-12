@@ -130,7 +130,7 @@ The `scripts/` directory pattern (auto-converting shell scripts to packages) rem
 
 Each phase produces a buildable configuration verified by `nixos-rebuild build --flake .#p1g3`.
 
-**Phase 1: flake-parts skeleton**
+**Phase 1: ✅ flake-parts skeleton** (a8c1038)
 - Add `flake-parts` input
 - Rewrite `flake.nix` to use flake-parts + import-tree
 - Move `configuration.nix` → `modules/features/base.nix`

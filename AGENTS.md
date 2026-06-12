@@ -10,15 +10,27 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 ## Current State → Target
 
-**Current (pre-refactor):** Flat structure — `flake.nix`, `configuration.nix`, `hardware-configuration.nix`, `home.nix` at root. Single host.
+**Phase 1 complete** (a8c1038): `flake-parts` + `import-tree` skeleton. All modules auto-discovered under `modules/`. P1 host builds successfully. Old root-level files still exist (remove in Phase 4).
 
-**Target (post-refactor):** Dendritic pattern — `flake-parts` + `import-tree`. Every `.nix` under `modules/features/` is an auto-discovered module. Hosts are thin assembly files.
+**Remaining:** Phase 2 (split NixOS modules), Phase 3 (split HM modules), Phase 4 (cleanup), Phase 5 (add T14s host).
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
 - `docs/issues/` — numbered issues tracking each incremental step
 
 ## Critical Rules (Would an Agent Miss These?)
+
+### Flake-Parts Module Access
+
+Inside a flake-parts module, access sibling modules via `config.flake.*` (the merged flake-parts config), never `self.*` (the raw flake outputs which can't resolve during module evaluation).
+
+### `nixosModules` is Flat
+
+`flake.nixosModules` is a flat attrset of modules — `flake.nixosModules.base`, not `flake.nixosModules.features.base`. Nesting requires `flake.modules.nixos.*` from the `modules` flakeModule.
+
+### `_module.args` for Inputs
+
+To pass `inputs` into a NixOS module loaded via `flake.nixosModules`, set `_module.args.inputs = inputs` at the top of the module body.
 
 ### `useGlobalPkgs = true` — Overlay Scope
 
