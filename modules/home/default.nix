@@ -154,7 +154,6 @@
         };
       };
 
-      # NVIDIA: nixGL wrapper for Vulkan dispatch on Optimus systems
       targets.genericLinux.nixGL.vulkan.enable = true;
 
       imports = [ inputs.lazyvim.homeManagerModules.default ];
@@ -230,16 +229,11 @@
         theme = "Arc-Dark";
       };
 
-      # NVIDIA: OBS uses CUDA for hardware encoding on P1 Gen 3.
-      # On T14s (no dGPU), this should use VA-API instead (cudaSupport = false).
       programs.obs-studio = {
         enable = true;
-
-        package = (
-          pkgs.obs-studio.override {
-            cudaSupport = true;
-          }
-        );
+        package = pkgs.obs-studio.override {
+          cudaSupport = true;
+        };
       };
 
       programs.lazyvim = {
@@ -615,7 +609,7 @@
           "uwsm app -- blueman-tray"
         ];
         env = [
-          "GSK_RENDERER,gl"
+          "GSK_RENDERER=gl"
         ];
         monitorv2 = [
           {

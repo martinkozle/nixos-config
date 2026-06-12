@@ -24,43 +24,84 @@
 
   outputs =
     inputs:
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" ];
-
-      imports = [
-        (inputs.import-tree.matchNot ".*hardware-configuration.*" ./modules)
-      ];
-
-      flake = {
-        schemas = {
-          checks = inputs.flake-parts.flakeSchema.applyCheckSchema;
+    let
+      fp = inputs.flake-parts.lib.mkFlake { inherit inputs; };
+      flake = fp {
+        systems = [ "x86_64-linux" ];
+        imports = [
+          (inputs.import-tree.matchNot ".*hardware-configuration.*" ./modules)
+        ];
+        flake = {
+          schemas = {
+            checks = inputs.flake-parts.flakeSchema.applyCheckSchema;
+          };
         };
+        perSystem =
+          { pkgs, self', ... }:
+          {
+            formatter = pkgs.nixfmt;
+            checks.pre-commit-check = inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+              src = ./.;
+              hooks = {
+                nixfmt.enable = true;
+              };
+            };
+            devShells.default =
+              let
+                inherit (self'.checks.pre-commit-check) shellHook enabledPackages;
+              in
+              pkgs.mkShell {
+                inherit shellHook;
+                buildInputs = enabledPackages;
+              };
+          };
       };
 
-      perSystem =
-        {
-          pkgs,
-          self',
-          ...
-        }:
-        {
-          formatter = pkgs.nixfmt;
-
-          checks.pre-commit-check = inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
-            src = ./.;
-            hooks = {
-              nixfmt.enable = true;
-            };
-          };
-
-          devShells.default =
-            let
-              inherit (self'.checks.pre-commit-check) shellHook enabledPackages;
-            in
-            pkgs.mkShell {
-              inherit shellHook;
-              buildInputs = enabledPackages;
-            };
+      # Inline module loading to avoid lazy evaluation issues
+      loadFeature =
+        path: name:
+        let
+          raw = import path;
+          loaded =
+            if builtins.isFunction raw then
+              raw {
+                self = { };
+                inherit inputs;
+              }
+            else
+              raw;
+        in
+        loaded.flake.nixosModules.${name};
+    in
+    flake
+    // {
+      nixosConfigurations = {
+        p1g3 = inputs.nixpkgs.lib.nixosSystem {
+          modules = [
+            inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
+            ./modules/hosts/p1g3/hardware-configuration.nix
+            (loadFeature ./modules/features/base.nix "base")
+            (loadFeature ./modules/features/graphics.nix "graphics")
+            (loadFeature ./modules/features/networking.nix "networking")
+            (loadFeature ./modules/features/nfs.nix "nfs")
+            (loadFeature ./modules/features/audio.nix "audio")
+            (loadFeature ./modules/features/bluetooth.nix "bluetooth")
+            (loadFeature ./modules/features/docker.nix "docker")
+            (loadFeature ./modules/features/services.nix "services")
+            (loadFeature ./modules/features/security.nix "security")
+            (loadFeature ./modules/features/power.nix "power")
+            (loadFeature ./modules/features/packages-system.nix "packages-system")
+            (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/nvidia.nix "nvidia")
+            inputs.home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.users.martin = flake.homeModules.home.default;
+            }
+          ];
         };
+      };
     };
 }

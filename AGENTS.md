@@ -12,7 +12,9 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 1 complete** (a8c1038): `flake-parts` + `import-tree` skeleton. All modules auto-discovered under `modules/`. P1 host builds successfully. Old root-level files still exist (remove in Phase 4).
 
-**Remaining:** Phase 2 (split NixOS modules), Phase 3 (split HM modules), Phase 4 (cleanup), Phase 5 (add T14s host).
+**Phase 2 complete**: Monolithic `base.nix` split into 12 feature modules (graphics, networking, nfs, audio, bluetooth, docker, services, security, power, packages-system, hyprland-system, nvidia). `base.nix` reduced from 282 to ~92 lines. Host assembly moved to `flake.nix` to avoid lazy evaluation cycles.
+
+**Remaining:** Phase 3 (split HM modules), Phase 4 (cleanup), Phase 5 (add T14s host).
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
@@ -20,17 +22,21 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 ## Critical Rules (Would an Agent Miss These?)
 
-### Flake-Parts Module Access
+### Host Assembly in flake.nix
 
-Inside a flake-parts module, access sibling modules via `config.flake.*` (the merged flake-parts config), never `self.*` (the raw flake outputs which can't resolve during module evaluation).
+`flake.nixosConfigurations` is defined in `flake.nix`, NOT in host files under `modules/hosts/`. This avoids lazy evaluation cycles where `self.nixosModules` or `config.flake.nixosModules` can't resolve during module evaluation. When adding a new host, add the configuration in `flake.nix` alongside existing hosts.
 
 ### `nixosModules` is Flat
 
-`flake.nixosModules` is a flat attrset of modules — `flake.nixosModules.base`, not `flake.nixosModules.features.base`. Nesting requires `flake.modules.nixos.*` from the `modules` flakeModule.
+`flake.nixosModules` is a flat attrset of modules — `flake.nixosModules.base`, not `flake.nixosModules.features.base`. Module names are derived from filenames (e.g., `graphics.nix` → `flake.nixosModules.graphics`).
 
 ### `_module.args` for Inputs
 
 To pass `inputs` into a NixOS module loaded via `flake.nixosModules`, set `_module.args.inputs = inputs` at the top of the module body.
+
+### Home Manager Single Registration
+
+All Home Manager config is assembled in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` definitions from different files, so HM config must stay in a single registration point. Do NOT create separate `flake.homeModules.*` registrations in feature modules — put HM-side config into `home/default.nix` instead.
 
 ### `useGlobalPkgs = true` — Overlay Scope
 
