@@ -23,7 +23,7 @@
 
   programs.firefox = {
     enable = true;
-    configPath = "${config.xdg.configHome}/mozilla/firefox";
+    configPath = "${config.home.homeDirectory}/.config/mozilla/firefox";
   };
 
   programs.rofi = {

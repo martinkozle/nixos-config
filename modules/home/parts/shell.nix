@@ -20,7 +20,7 @@ in
     shellAliases = myAliases;
     history = {
       size = 100000;
-      path = "${config.xdg.dataHome}/zsh/zsh_history";
+      path = "${config.home.homeDirectory}/.local/share/zsh/zsh_history";
     };
 
     plugins = [
