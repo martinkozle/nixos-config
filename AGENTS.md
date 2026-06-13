@@ -16,7 +16,7 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 2.5 complete**: Hardened for multi-host. Removed host-specific config from shared modules: LUKS UUIDs moved to `luks-p1g3.nix`, WireGuard to `wireguard-p1g3.nix`, hostname to `flake.nix` host assembly. Dead `modules/hosts/p1g3/default.nix` removed. `loadFeature` simplified to one-liner.
 
-**Phase 3 complete** (5426f96): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Uses `import` approach rather than `flake.homeModules` registration — extracted files return plain HM config attrsets imported from `default.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
+**Phase 3 complete** (5426f96, refined 93662e7): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Parts are proper HM modules (`{ pkgs, ... }: { ... }`) imported via plain paths in `default.nix`. Values needed across parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
 
 **Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
 
@@ -46,7 +46,7 @@ Modules that only apply to one host use the naming pattern `<feature>-<hostname>
 
 ### Home Manager Single Registration
 
-All Home Manager config is assembled in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` definitions from different files, so HM config must stay in a single registration point. Do NOT create separate `flake.homeModules.*` registrations in feature modules — put HM-side config into `home/default.nix` instead.
+All Home Manager config is assembled in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` definitions from different files, so HM config must stay in a single registration point. Do NOT create separate `flake.homeModules.*` registrations in feature modules — put HM-side config into `home/default.nix` instead. Parts under `modules/home/parts/` are proper HM modules imported via plain paths — values flow through `extraSpecialArgs` in `flake.nix`.
 
 ### `useGlobalPkgs = true` — Overlay Scope
 

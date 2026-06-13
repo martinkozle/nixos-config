@@ -155,9 +155,10 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - Established convention: host-specific modules use `<name>-<hostname>.nix` suffix
 - Verify: build succeeds, no host-specific config leaks into shared modules
 
-**Phase 3: Split Home Manager modules** (5426f96)
+**Phase 3: Split Home Manager modules** (5426f96, refined 93662e7)
 - Extract from `modules/home/default.nix`: `packages-home.nix`, `shell.nix`, `editors.nix`, `programs.nix`, `themes.nix`, `waybar.nix`, `hyprlock-idle.nix`
-- Extracted files live under `modules/home/parts/` and are imported as plain HM config attrsets (not registered as `flake.homeModules` — flake-parts can't merge multiple HM registrations)
+- Extracted files are proper HM modules (`{ pkgs, ... }: { ... }`) imported via plain paths (not `import` calls)
+- Values needed across parts (`inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`
 - `import-tree` `matchNot` regex extended to exclude `home/parts/` from auto-discovery
 - `default.nix` reduced from 799 to ~240 lines (Hyprland block stays inline)
 - Verify: build succeeds, all checks pass

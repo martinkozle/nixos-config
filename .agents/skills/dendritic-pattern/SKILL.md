@@ -83,7 +83,7 @@ When adding a new host, add its configuration in `flake.nix` alongside existing 
 1. Create `modules/features/myfeature.nix`
 2. Register as `flake.nixosModules.myfeature` (flat, no `features.` prefix)
 3. Add `(loadFeature ./modules/features/myfeature.nix "myfeature")` to each host's module list in `flake.nix` that needs it
-4. For Home Manager config: extract as a plain Nix file under `modules/home/parts/` returning an HM config attrset, and add it to the `imports` list in `modules/home/default.nix`
+4. For Home Manager config: extract as a proper HM module (`{ pkgs, ... }: { ... }`) under `modules/home/parts/` and add it to the `imports` list in `modules/home/default.nix`. Values needed in parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`.
 
 If the feature is host-specific (e.g., NVIDIA, LUKS for one host), name the file `<feature>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`) and only add it to that host's module list.
 
@@ -144,7 +144,7 @@ These files are generated. Custom hardware config belongs in feature modules.
 2. **Don't define overlays in HM modules** — ignored with `useGlobalPkgs = true`
 3. **Modules are NOT auto-included** — every module must be listed in `flake.nix` via `loadFeature`. Creating a file in `modules/features/` is not enough; add it to each host's module list.
 4. **Module names are flat** — `modules/features/foo.nix` registers as `nixosModules.foo`, NOT `nixosModules.features.foo`
-5. **HM config is single registration** — all Home Manager config is assembled in `modules/home/default.nix` via `imports` of extracted files under `modules/home/parts/`. Do NOT create `flake.homeModules.*` registrations — flake-parts can't merge them.
+5. **HM config is single registration** — all Home Manager config is assembled in `modules/home/default.nix`. Parts under `modules/home/parts/` are proper HM modules imported via plain paths (not `import` calls). Values flow through `extraSpecialArgs`. Do NOT create `flake.homeModules.*` registrations — flake-parts can't merge them.
 6. **Host assembly is in flake.nix** — never use `self.nixosModules` or `config.flake.nixosModules` in host files; these create lazy evaluation cycles
 7. **Host-specific config goes in host-gated modules** — LUKS UUIDs, hostnames, WireGuard paths, GPU config — never put these in `base.nix` or shared modules
 
