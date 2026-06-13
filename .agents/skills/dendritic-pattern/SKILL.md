@@ -159,6 +159,7 @@ nh switch                              # Deploy to current machine
 
 ## References
 
-- `docs/prd/dendritic-refactor.md` — full PRD with design decisions
+- `docs/dendritic.md` — research report on multi-host patterns + our specific adaptations (read this first)
+- `docs/prd/dendritic-refactor.md` — full PRD with design decisions and migration phases
 - `docs/issues/` — numbered issues tracking migration steps
 - AGENTS.md — critical rules and conventions

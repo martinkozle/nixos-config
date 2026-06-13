@@ -29,7 +29,7 @@
       flake = fp {
         systems = [ "x86_64-linux" ];
         imports = [
-          (inputs.import-tree.matchNot ".*hardware-configuration.*" ./modules)
+          (inputs.import-tree.matchNot ".*(hardware-configuration|home/parts/).*" ./modules)
         ];
         flake = {
           schemas = {
