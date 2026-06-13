@@ -16,7 +16,9 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 2.5 complete**: Hardened for multi-host. Removed host-specific config from shared modules: LUKS UUIDs moved to `luks-p1g3.nix`, WireGuard to `wireguard-p1g3.nix`, hostname to `flake.nix` host assembly. Dead `modules/hosts/p1g3/default.nix` removed. `loadFeature` simplified to one-liner.
 
-**Remaining:** Phase 3 (split HM modules), Phase 4 (cleanup), Phase 5 (add T14s host).
+**Phase 3 complete** (5426f96): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Uses `import` approach rather than `flake.homeModules` registration — extracted files return plain HM config attrsets imported from `default.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
+
+**Remaining:** Phase 4 (cleanup), Phase 5 (add T14s host).
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases

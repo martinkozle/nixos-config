@@ -83,7 +83,7 @@ When adding a new host, add its configuration in `flake.nix` alongside existing 
 1. Create `modules/features/myfeature.nix`
 2. Register as `flake.nixosModules.myfeature` (flat, no `features.` prefix)
 3. Add `(loadFeature ./modules/features/myfeature.nix "myfeature")` to each host's module list in `flake.nix` that needs it
-4. For Home Manager config: add directly into `modules/home/default.nix` (single registration point)
+4. For Home Manager config: extract as a plain Nix file under `modules/home/parts/` returning an HM config attrset, and add it to the `imports` list in `modules/home/default.nix`
 
 If the feature is host-specific (e.g., NVIDIA, LUKS for one host), name the file `<feature>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`) and only add it to that host's module list.
 
@@ -131,7 +131,7 @@ These files are generated. Custom hardware config belongs in feature modules.
 | Task | Where |
 |------|-------|
 | Add a system package | `modules/features/packages-system.nix` |
-| Add a user package | `modules/home/default.nix` (home.packages) |
+| Add a user package | `modules/home/parts/packages-home.nix` (home.packages) |
 | Add a new NixOS service | Create `modules/features/<service>.nix` — then add to host module lists in `flake.nix` |
 | Change Hyprland keybinds | `modules/home/default.nix` (HM side) |
 | Add a host | Create `modules/hosts/<name>/` + add config in `flake.nix` |
@@ -144,7 +144,7 @@ These files are generated. Custom hardware config belongs in feature modules.
 2. **Don't define overlays in HM modules** — ignored with `useGlobalPkgs = true`
 3. **Modules are NOT auto-included** — every module must be listed in `flake.nix` via `loadFeature`. Creating a file in `modules/features/` is not enough; add it to each host's module list.
 4. **Module names are flat** — `modules/features/foo.nix` registers as `nixosModules.foo`, NOT `nixosModules.features.foo`
-5. **HM config is single-file** — all Home Manager config must be in `modules/home/default.nix`
+5. **HM config is single registration** — all Home Manager config is assembled in `modules/home/default.nix` via `imports` of extracted files under `modules/home/parts/`. Do NOT create `flake.homeModules.*` registrations — flake-parts can't merge them.
 6. **Host assembly is in flake.nix** — never use `self.nixosModules` or `config.flake.nixosModules` in host files; these create lazy evaluation cycles
 7. **Host-specific config goes in host-gated modules** — LUKS UUIDs, hostnames, WireGuard paths, GPU config — never put these in `base.nix` or shared modules
 
