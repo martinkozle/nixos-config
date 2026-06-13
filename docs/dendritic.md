@@ -71,7 +71,7 @@ The canonical Dendritic pattern puts host assembly in per-host files that refere
 - **Host assembly in `flake.nix`** — avoids lazy evaluation cycles with `self.nixosModules`. Community research (MatthiasBenaets, Christopher2K, HarrisonCentner) confirms this is a valid and common approach.
 - **Explicit module imports** — each module is listed per host via `loadFeature`, not auto-included via `builtins.attrValues`. This is the dominant community pattern: explicit is better than implicit. No repo uses automatic per-host filtering at the import-tree level.
 - **Host directories = `hardware-configuration.nix` only** — no `default.nix` assembly files. Custom host-specific config goes in `modules/features/<name>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`).
-- **Home Manager single registration** — all HM config lives in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` from different files, so HM config stays in one place.
+- **Home Manager single registration** — all HM config lives in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` from different files, so HM config stays in one place. Parts under `modules/home/parts/` are proper HM modules imported via plain paths — values flow through `extraSpecialArgs` in `flake.nix`.
 
 ---
 
