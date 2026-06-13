@@ -114,7 +114,11 @@
         };
         device = [
           {
-            name = "synps/2-synaptics-touchpad";
+            name = ".*synps.*";
+            accel_profile = "adaptive";
+          }
+          {
+            name = ".*elan.*";
             accel_profile = "adaptive";
           }
         ];
