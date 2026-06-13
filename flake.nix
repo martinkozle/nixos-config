@@ -105,6 +105,7 @@
 
         t14s = inputs.nixpkgs.lib.nixosSystem {
           modules = [
+            inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
             ./modules/hosts/t14s/hardware-configuration.nix
             (loadFeature ./modules/features/base.nix "base")
             (loadFeature ./modules/features/graphics.nix "graphics")
