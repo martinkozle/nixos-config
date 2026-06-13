@@ -167,12 +167,13 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix`
 - Verified: `nix flake check` passes, build succeeds
 
-**Phase 5: Add T14s host**
-- Install NixOS on T14s, generate `hardware-configuration.nix`
-- Create `modules/hosts/t14s/hardware-configuration.nix`
-- Create host-specific modules: `intel-gpu.nix`, `monitors-t14s.nix`, `wireguard-t14s.nix`
-- Add `t14s` to `nixosConfigurations` in `flake.nix` (copy P1 block, swap host-specific modules, remove P1-only modules)
-- Verify: `nixos-rebuild build --flake .#t14s` succeeds
+**Phase 5: Add T14s host** (600568e)
+- Created `modules/hosts/t14s/hardware-configuration.nix` (placeholder, replace after T14s install)
+- Created host-specific modules: `intel-gpu.nix`, `wireguard-t14s.nix`
+- Added `t14s` to `nixosConfigurations` in `flake.nix` (shared modules + `intel-gpu` + `wireguard-t14s`, no P1-only modules)
+- OBS `cudaSupport` made conditional via `nvidiaEnabled` HM arg (`true` for P1, `false` for T14s)
+- Verified: `nix flake check` passes, both hosts produce valid derivations
+- **Remaining:** `monitors-t14s.nix` deferred — shared Hyprland monitor config uses fallback `preferred` mode which works on both hosts until physical install provides actual output names
 
 ### Host Naming Convention
 
