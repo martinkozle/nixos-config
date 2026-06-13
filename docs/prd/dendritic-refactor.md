@@ -162,10 +162,9 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - `default.nix` reduced from 799 to ~240 lines (Hyprland block stays inline)
 - Verify: build succeeds, all checks pass
 
-**Phase 4: Clean up and remove old files**
-- Remove root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix`
-- Ensure `checks` and `devShells` in flake.nix work with new structure
-- Verify: `nix flake check` passes, build succeeds
+**Phase 4: Clean up and remove old files** (done)
+- Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix`
+- Verified: `nix flake check` passes, build succeeds
 
 **Phase 5: Add T14s host**
 - Install NixOS on T14s, generate `hardware-configuration.nix`

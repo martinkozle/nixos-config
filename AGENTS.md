@@ -18,7 +18,9 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 3 complete** (5426f96): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Uses `import` approach rather than `flake.homeModules` registration — extracted files return plain HM config attrsets imported from `default.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
 
-**Remaining:** Phase 4 (cleanup), Phase 5 (add T14s host).
+**Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
+
+**Remaining:** Phase 5 (add T14s host).
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
