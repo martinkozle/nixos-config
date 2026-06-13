@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 {
   programs.git = {
@@ -18,12 +18,12 @@
     enable = true;
     clean.enable = true;
     clean.extraArgs = "--keep 5 --keep-since 7d";
-    flake = "/home/martin/nixos-config";
+    flake = "${config.home.homeDirectory}/nixos-config";
   };
 
   programs.firefox = {
     enable = true;
-    configPath = "/home/martin/.config/mozilla/firefox";
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
   };
 
   programs.rofi = {

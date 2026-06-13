@@ -31,7 +31,7 @@ in
     pkgs-unstable.joplin-desktop
     pkgs.btop
     pkgs.seahorse
-    pkgs-unstable.vscode.fhs
+
     pkgs.nixfmt
     pkgs.nixd
     pkgs-unstable.ty

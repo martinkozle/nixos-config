@@ -1,4 +1,7 @@
-{ ... }:
+{
+  config,
+  ...
+}:
 {
   flake.homeModules.home.default =
     {
@@ -17,9 +20,9 @@
       imports = [
         inputs.lazyvim.homeManagerModules.default
         (import ./parts/packages-home.nix { inherit pkgs inputs; })
-        (import ./parts/shell.nix { inherit pkgs; })
+        (import ./parts/shell.nix { inherit pkgs config; })
         (import ./parts/editors.nix { inherit pkgs inputs; })
-        (import ./parts/programs.nix { inherit pkgs; })
+        (import ./parts/programs.nix { inherit pkgs config; })
         (import ./parts/themes.nix { inherit pkgs; })
         (import ./parts/waybar.nix { })
         (import ./parts/hyprlock-idle.nix { inherit lib; })
