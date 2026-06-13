@@ -16,7 +16,7 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 2.5 complete**: Hardened for multi-host. Removed host-specific config from shared modules: LUKS UUIDs moved to `luks-p1g3.nix`, WireGuard to `wireguard-p1g3.nix`, hostname to `flake.nix` host assembly. Dead `modules/hosts/p1g3/default.nix` removed. `loadFeature` simplified to one-liner.
 
-**Phase 3 complete** (5426f96, refined 93662e7): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Parts are proper HM modules (`{ pkgs, ... }: { ... }`) imported via plain paths in `default.nix`. Values needed across parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
+**Phase 3 complete** (5426f96, refined 93662e7, 1920d8d): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Parts are proper HM modules (`{ pkgs, ... }: { ... }`) imported via plain paths in `default.nix` (not `import` calls). Values needed across parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
 
 **Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
 
