@@ -23,7 +23,7 @@
       scriptDir = ../../scripts;
       scriptFiles = builtins.attrNames (builtins.readDir scriptDir);
 
-      scriptBins = builtins.map (
+      scriptBins = map (
         name: pkgs.writeShellScriptBin name (builtins.readFile (scriptDir + "/${name}"))
       ) scriptFiles;
     in
