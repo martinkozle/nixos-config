@@ -1,12 +1,7 @@
-{ self, inputs, ... }:
+{ inputs, ... }:
 {
   flake.nixosModules.hyprland-system =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
+    { pkgs, ... }:
     {
       _module.args.inputs = inputs;
 

@@ -1,23 +1,13 @@
-{ self, inputs, ... }:
+{ inputs, ... }:
 {
   flake.nixosModules.base =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
+    { pkgs, ... }:
     {
       _module.args.inputs = inputs;
 
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
       boot.kernelParams = [ "psmouse.synaptics_intertouch=0" ];
-
-      boot.initrd.luks.devices."luks-c63de383-b1b4-40e0-a155-8bd3c414edbb".device =
-        "/dev/disk/by-uuid/c63de383-b1b4-40e0-a155-8bd3c414edbb";
-
-      networking.hostName = "p1g3";
 
       time.timeZone = "Europe/Skopje";
 

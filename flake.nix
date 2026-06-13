@@ -57,19 +57,12 @@
           };
       };
 
-      # Inline module loading to avoid lazy evaluation issues
+      # Inline module loading — handles both { ... } and {} module signatures
       loadFeature =
         path: name:
         let
           raw = import path;
-          loaded =
-            if builtins.isFunction raw then
-              raw {
-                self = { };
-                inherit inputs;
-              }
-            else
-              raw;
+          loaded = if builtins.isFunction raw then raw { inherit inputs; } else raw;
         in
         loaded.flake.nixosModules.${name};
     in
@@ -93,8 +86,11 @@
             (loadFeature ./modules/features/packages-system.nix "packages-system")
             (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
             (loadFeature ./modules/features/nvidia.nix "nvidia")
+            (loadFeature ./modules/features/luks-p1g3.nix "luks-p1g3")
+            (loadFeature ./modules/features/wireguard-p1g3.nix "wireguard-p1g3")
             inputs.home-manager.nixosModules.home-manager
             {
+              networking.hostName = "p1g3";
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = { inherit inputs; };

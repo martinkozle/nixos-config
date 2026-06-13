@@ -1,6 +1,6 @@
 {
   flake.nixosModules.security =
-    { config, pkgs, ... }:
+    { ... }:
     {
       security = {
         polkit.enable = true;

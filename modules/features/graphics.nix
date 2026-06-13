@@ -1,6 +1,6 @@
 {
   flake.nixosModules.graphics =
-    { config, pkgs, ... }:
+    { ... }:
     {
       hardware.graphics = {
         enable = true;

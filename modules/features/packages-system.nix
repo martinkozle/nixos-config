@@ -1,6 +1,6 @@
 {
   flake.nixosModules.packages-system =
-    { config, pkgs, ... }:
+    { pkgs, ... }:
     {
       environment.systemPackages = [
         pkgs.vim

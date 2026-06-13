@@ -14,6 +14,8 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 2 complete**: Monolithic `base.nix` split into 12 feature modules (graphics, networking, nfs, audio, bluetooth, docker, services, security, power, packages-system, hyprland-system, nvidia). `base.nix` reduced from 282 to ~92 lines. Host assembly moved to `flake.nix` to avoid lazy evaluation cycles.
 
+**Phase 2.5 complete**: Hardened for multi-host. Removed host-specific config from shared modules: LUKS UUIDs moved to `luks-p1g3.nix`, WireGuard to `wireguard-p1g3.nix`, hostname to `flake.nix` host assembly. Dead `modules/hosts/p1g3/default.nix` removed. `loadFeature` simplified to one-liner.
+
 **Remaining:** Phase 3 (split HM modules), Phase 4 (cleanup), Phase 5 (add T14s host).
 
 **Read first:**
@@ -33,6 +35,10 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 ### `_module.args` for Inputs
 
 To pass `inputs` into a NixOS module loaded via `flake.nixosModules`, set `_module.args.inputs = inputs` at the top of the module body.
+
+### Host-Specific Modules Use `<name>-<hostname>.nix` Convention
+
+Modules that only apply to one host use the naming pattern `<feature>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`, `nvidia.nix`). These are listed only in the relevant host's module list in `flake.nix`. Never put host-specific config (LUKS UUIDs, hostnames, WireGuard paths, GPU drivers) in shared modules like `base.nix`.
 
 ### Home Manager Single Registration
 

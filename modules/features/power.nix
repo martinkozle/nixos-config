@@ -1,6 +1,6 @@
 {
   flake.nixosModules.power =
-    { config, pkgs, ... }:
+    { ... }:
     {
       powerManagement.enable = true;
 

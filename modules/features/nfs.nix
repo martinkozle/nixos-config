@@ -1,6 +1,6 @@
 {
   flake.nixosModules.nfs =
-    { config, pkgs, ... }:
+    { ... }:
     {
       fileSystems."/mnt/nas" = {
         device = "debian:/nas";
