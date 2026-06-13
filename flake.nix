@@ -96,6 +96,39 @@
               home-manager.extraSpecialArgs = {
                 inherit inputs;
                 homeDirectory = "/home/martin";
+                nvidiaEnabled = true;
+              };
+              home-manager.users.martin = flake.homeModules.home.default;
+            }
+          ];
+        };
+
+        t14s = inputs.nixpkgs.lib.nixosSystem {
+          modules = [
+            ./modules/hosts/t14s/hardware-configuration.nix
+            (loadFeature ./modules/features/base.nix "base")
+            (loadFeature ./modules/features/graphics.nix "graphics")
+            (loadFeature ./modules/features/networking.nix "networking")
+            (loadFeature ./modules/features/nfs.nix "nfs")
+            (loadFeature ./modules/features/audio.nix "audio")
+            (loadFeature ./modules/features/bluetooth.nix "bluetooth")
+            (loadFeature ./modules/features/docker.nix "docker")
+            (loadFeature ./modules/features/services.nix "services")
+            (loadFeature ./modules/features/security.nix "security")
+            (loadFeature ./modules/features/power.nix "power")
+            (loadFeature ./modules/features/packages-system.nix "packages-system")
+            (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/intel-gpu.nix "intel-gpu")
+            (loadFeature ./modules/features/wireguard-t14s.nix "wireguard-t14s")
+            inputs.home-manager.nixosModules.home-manager
+            {
+              networking.hostName = "t14s";
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                homeDirectory = "/home/martin";
+                nvidiaEnabled = false;
               };
               home-manager.users.martin = flake.homeModules.home.default;
             }

@@ -7,6 +7,10 @@ description: How this NixOS repository uses the Dendritic pattern (flake-parts +
 
 This NixOS config uses the **Dendritic pattern** built on `flake-parts` + `lib.import-tree`. Read this before making any changes to `modules/`.
 
+## ⚠️ Read First
+
+**Before doing any work, read `docs/dendritic.md`** — it covers the research, multi-host pattern decisions, and our specific adaptations to the canonical Dendritic pattern. The skill file covers conventions; the doc covers *why* we made each choice. Both are required context.
+
 ## Core Idea
 
 Every `.nix` file under `modules/features/` is a **flake-parts top-level module**. Each file owns one feature and can contribute to NixOS, Home Manager, or both from the same file.

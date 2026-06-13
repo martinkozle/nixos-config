@@ -20,7 +20,7 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
 
-**Remaining:** Phase 5 (add T14s host).
+**Phase 5 complete**: T14s host (`t14s`) added with placeholder `hardware-configuration.nix`, `intel-gpu.nix` module, `wireguard-t14s.nix`, and OBS cudaSupport made conditional via `nvidiaEnabled` HM arg. Both hosts build and pass `nix flake check`. Placeholder hardware config needs real UUIDs from T14s after physical install.
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
@@ -47,6 +47,10 @@ Modules that only apply to one host use the naming pattern `<feature>-<hostname>
 ### Home Manager Single Registration
 
 All Home Manager config is assembled in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` definitions from different files, so HM config must stay in a single registration point. Do NOT create separate `flake.homeModules.*` registrations in feature modules — put HM-side config into `home/default.nix` instead. Parts under `modules/home/parts/` are proper HM modules imported via plain paths — values flow through `extraSpecialArgs` in `flake.nix`.
+
+### `extraSpecialArgs` for Host-Specific Values in HM Parts
+
+Values that differ between hosts (like `nvidiaEnabled`) flow through `home-manager.extraSpecialArgs` in `flake.nix` into HM parts under `modules/home/parts/`. Example: `nvidiaEnabled = true` for P1, `nvidiaEnabled = false` for T14s. Use `? false` default in part module destructuring.
 
 ### `useGlobalPkgs = true` — Overlay Scope
 

@@ -1,4 +1,9 @@
-{ pkgs, homeDirectory, ... }:
+{
+  pkgs,
+  homeDirectory,
+  nvidiaEnabled ? false,
+  ...
+}:
 
 {
   programs.git = {
@@ -33,7 +38,7 @@
   programs.obs-studio = {
     enable = true;
     package = pkgs.obs-studio.override {
-      cudaSupport = true;
+      cudaSupport = nvidiaEnabled;
     };
   };
 
