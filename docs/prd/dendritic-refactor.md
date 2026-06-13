@@ -167,13 +167,16 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix`
 - Verified: `nix flake check` passes, build succeeds
 
-**Phase 5: Add T14s host** (600568e)
-- Created `modules/hosts/t14s/hardware-configuration.nix` (placeholder, replace after T14s install)
+**Phase 5: Add T14s host** (600568e → 84bcf12, completed 2026-06-13)
+- Created `modules/hosts/t14s/hardware-configuration.nix` (placeholder, replaced with real values after physical install)
 - Created host-specific modules: `intel-gpu.nix`, `wireguard-t14s.nix`
 - Added `t14s` to `nixosConfigurations` in `flake.nix` (shared modules + `intel-gpu` + `wireguard-t14s`, no P1-only modules)
 - OBS `cudaSupport` made conditional via `nvidiaEnabled` HM arg (`true` for P1, `false` for T14s)
-- Verified: `nix flake check` passes, both hosts produce valid derivations
-- **Remaining:** `monitors-t14s.nix` deferred — shared Hyprland monitor config uses fallback `preferred` mode which works on both hosts until physical install provides actual output names
+- Physical install completed: btrfs + LUKS2 on Micron 2300 NVMe, Hyprland boots successfully
+- Touchpad name difference discovered (`elan-touchpad` vs `synps/2-synaptics-touchpad`) — fixed in `modules/home/default.nix` with regex matching both
+- Bluetooth `powerOnBoot` set to `true` (was soft-blocked by ThinkPad rfkill on boot)
+- `monitors-t14s.nix` not needed — both hosts use `eDP-1` output name, fallback `output = ""` works indefinitely
+- Post-install optimizations deferred to #010 (btrfs compression, zram, LUKS tuning, WireGuard)
 
 ### Host Naming Convention
 
@@ -212,4 +215,4 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - A separate "Dendritic pattern guide" document should be created to explain the pattern to new agents, covering: how modules register, how hosts assemble, how to add a new feature, how to add a new host
 - The `to-issues` skill should be used after this PRD to break phases into individual issues/tickets
 - The P1's LUKS UUID (`c63de383-b1b4-40e0-a155-8bd3c414edbb` in configuration.nix, `62448792-4cdf-403f-95b6-65056b32cae6` in hardware-configuration.nix) should remain in the P1's host-specific config and not be migrated to shared modules
-- The T14s will have its own LUKS UUID determined at install time
+- The T14s LUKS UUID is `8be7d7a8-ad1d-443e-8030-429a1e291ee5` (root) and `82f09ac8-3b1c-4e0e-8bc7-2a277438c0d2` (swap) — determined at install time
