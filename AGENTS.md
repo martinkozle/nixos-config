@@ -52,6 +52,10 @@ All Home Manager config is assembled in `modules/home/default.nix`. flake-parts 
 
 Values that differ between hosts (like `nvidiaEnabled`) flow through `home-manager.extraSpecialArgs` in `flake.nix` into HM parts under `modules/home/parts/`. Example: `nvidiaEnabled = true` for P1, `nvidiaEnabled = false` for T14s. Use `? false` default in part module destructuring.
 
+### Explicit Module Lists — No `sharedModules` Extraction
+
+Each host lists all its modules explicitly in `flake.nix`, including shared ones. We intentionally do NOT extract a `sharedModules = [ ... ]` list. This follows the Dendritic pattern (Pavel 100+ modules, Christopher2K): each host is a self-contained "menu" — diff two hosts and you see exactly what differs. Duplication in `flake.nix` is the trade-off. If we reach 3+ hosts, revisit this decision.
+
 ### `useGlobalPkgs = true` — Overlay Scope
 
 Overlays defined in Home Manager modules are **silently ignored**. Define overlays in the host's NixOS config block (`home-manager.nixpkgs.overlays`), never in a `.nix` file inside `modules/features/` that registers as `homeModules`.
