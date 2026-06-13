@@ -28,6 +28,7 @@
   fileSystems."/" = {
     device = "/dev/mapper/luks-8be7d7a8-ad1d-443e-8030-429a1e291ee5";
     fsType = "btrfs";
+    options = [ "compress=zstd" ];
   };
 
   boot.initrd.luks.devices."luks-8be7d7a8-ad1d-443e-8030-429a1e291ee5".device =
@@ -36,13 +37,19 @@
   fileSystems."/home" = {
     device = "/dev/mapper/luks-8be7d7a8-ad1d-443e-8030-429a1e291ee5";
     fsType = "btrfs";
-    options = [ "subvol=home" ];
+    options = [
+      "compress=zstd"
+      "subvol=home"
+    ];
   };
 
   fileSystems."/nix" = {
     device = "/dev/mapper/luks-8be7d7a8-ad1d-443e-8030-429a1e291ee5";
     fsType = "btrfs";
-    options = [ "subvol=nix" ];
+    options = [
+      "compress=zstd"
+      "subvol=nix"
+    ];
   };
 
   fileSystems."/boot" = {
@@ -53,10 +60,6 @@
       "dmask=0077"
     ];
   };
-
-  swapDevices = [
-    { device = "/dev/mapper/luks-82f09ac8-3b1c-4e0e-8bc7-2a277438c0d2"; }
-  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

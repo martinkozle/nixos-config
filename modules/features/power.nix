@@ -4,6 +4,9 @@
     {
       powerManagement.enable = true;
 
+      boot.swappiness = 100;
+      boot.zramSwap.enable = true;
+
       services.thermald.enable = true;
 
       services.tlp = {
