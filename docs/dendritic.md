@@ -64,6 +64,15 @@ modules/
 - **Slower `flake check`** — evaluates the entire module tree
 - **Debugging requires different tools** — `nixos-option` instead of `grep -r`
 
+### 1a. Our Adaptation (Decisions from Review)
+
+The canonical Dendritic pattern puts host assembly in per-host files that reference `config.flake.nixosModules`. Our repo diverges in these ways:
+
+- **Host assembly in `flake.nix`** — avoids lazy evaluation cycles with `self.nixosModules`. Community research (MatthiasBenaets, Christopher2K, HarrisonCentner) confirms this is a valid and common approach.
+- **Explicit module imports** — each module is listed per host via `loadFeature`, not auto-included via `builtins.attrValues`. This is the dominant community pattern: explicit is better than implicit. No repo uses automatic per-host filtering at the import-tree level.
+- **Host directories = `hardware-configuration.nix` only** — no `default.nix` assembly files. Custom host-specific config goes in `modules/features/<name>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`).
+- **Home Manager single registration** — all HM config lives in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` from different files, so HM config stays in one place.
+
 ---
 
 ### 2. VimJoyer's Approach
@@ -145,7 +154,7 @@ hosts/
 
 **Your situation:** 2 laptops, ~90% shared config (Hyprland, same user, same packages), diverging on NVIDIA vs Intel GPU, monitor config, LUKS UUIDs, WireGuard, NFS, TLP.
 
-**I recommend: Dendritic pattern (flake-parts + import-tree)**
+**I recommend: Dendritic pattern (flake-parts + import-tree), adapted**
 
 **Why it fits your case best:**
 
@@ -155,47 +164,45 @@ hosts/
 
 3. **Home-Manager + NixOS in one file** — for something like Hyprland, the NixOS side (services, packages) and Home-Manager side (config files, keybinds) live in the same `hyprland.nix`. When you modify Hyprland config, you're in one place.
 
-4. **Adding the second laptop is trivial** — just add `hosts/laptop2/default.nix` + `hardware-configuration.nix`, list the modules it needs. Diff the two host files and you'll see the delta clearly.
+4. **Adding the second laptop is trivial** — just add `hosts/laptop2/` + `hardware-configuration.nix`, then add the host block in `flake.nix` listing the modules it needs. Diff the two host blocks and you'll see the delta clearly.
 
 5. **You're already on flakes + home-manager** — the migration path is cleaner than starting from scratch.
 
-**Suggested migration target:**
+**Actual current structure (post-Phase 2.5):**
 ```
-flake.nix                              # ~15 lines, delegates to import-tree
+flake.nix                              # Host assembly: explicit module imports per host
 modules/
   features/
-    nvidia.nix                         # p1g3 only
-    hyprland.nix                       # shared
-    wireguard.nix                      # p1g3 only (or parametric)
-    monitors-p1g3.nix                  # p1g3 only
-    tlp-intel.nix                      # laptop2 only
-    nfs.nix                            # p1g3 only
-    base.nix                           # shared: users, locale, time, nix settings
-    packages.nix                       # shared packages
-    shell.nix                          # shared fish/zsh config
-    audio.nix                          # shared pipewire
-    networking.nix                     # shared networkmanager
+    base.nix                           # shared: locale, time, user, bootloader, nix settings
+    graphics.nix                       # shared: hardware.graphics.enable, NIXOS_OZONE_WL
+    nvidia.nix                         # p1g3 only: NVIDIA driver, modesetting, Prime
+    networking.nix                     # shared: NetworkManager, firewall
+    wireguard-p1g3.nix                 # p1g3 only: WireGuard config
+    luks-p1g3.nix                      # p1g3 only: secondary LUKS device
+    nfs.nix                            # shared: NFS mount (both hosts)
+    audio.nix                          # shared: PipeWire, rtkit, ALSA
+    bluetooth.nix                      # shared: Bluetooth, blueman
+    docker.nix                         # shared: Docker
+    services.nix                       # shared: OpenSSH, gnome-keyring, GPG, etc.
+    security.nix                       # shared: polkit rules, PAM
+    power.nix                          # shared: thermald, TLP
+    packages-system.nix                # shared: environment.systemPackages
+    hyprland-system.nix                # shared: programs.hyprland enable, UWSM, portals
   home/
-    general.nix                        # shared HM: editor, terminal, git
-    hyprland.nix                       # shared HM: hyprland config files
+    default.nix                        # ALL Home Manager config (single registration)
   hosts/
     p1g3/
-      default.nix                      # imports: base, nvidia, hyprland, wireguard, monitors-p1g3, nfs
-      hardware-configuration.nix
-    laptop2/
-      default.nix                      # imports: base, hyprland, tlp-intel, monitors-laptop2
-      hardware-configuration.nix
+      hardware-configuration.nix       # generated by nixos-generate-config
 ```
 
-**What to do with the ~90% shared config:** Extract it into `base.nix`, `packages.nix`, `shell.nix`, etc. These become modules both hosts import. The host files become thin assembly files — 20-30 lines each, listing what modules to import.
+**What to do with the ~90% shared config:** Extract it into `base.nix`, `packages.nix`, `shell.nix`, etc. These become modules both hosts import. Host-specific config (LUKS, WireGuard, GPU) goes in `<name>-<hostname>.nix` files imported only by the relevant host.
 
 **Migration approach:** Don't do it all at once. Start with:
 1. Set up `flake.nix` with flake-parts + import-tree
 2. Move `configuration.nix` content into `modules/features/base.nix`
-3. Extract NVIDIA into its own module
-4. Extract home-manager into `modules/home/` modules
-5. Create `hosts/p1g3/default.nix` that imports everything
-6. Verify it builds
-7. Then add `hosts/laptop2/` when you're ready
+3. Extract host-specific features into their own modules (nvidia, luks, wireguard)
+4. Move home-manager into `modules/home/default.nix`
+5. Verify it builds
+6. Then add `hosts/t14s/` when you're ready
 
 This is the approach with the best long-term maintainability for your 2-host, high-overlap scenario.
