@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, homeDirectory, ... }:
 
 let
   myAliases = {
@@ -20,7 +20,7 @@ in
     shellAliases = myAliases;
     history = {
       size = 100000;
-      path = "${config.home.homeDirectory}/.local/share/zsh/zsh_history";
+      path = "${homeDirectory}/.local/share/zsh/zsh_history";
     };
 
     plugins = [

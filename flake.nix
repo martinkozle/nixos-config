@@ -93,7 +93,10 @@
               networking.hostName = "p1g3";
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit inputs; };
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                homeDirectory = "/home/martin";
+              };
               home-manager.users.martin = flake.homeModules.home.default;
             }
           ];

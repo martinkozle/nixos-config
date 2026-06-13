@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}:
+{ ... }:
 {
   flake.homeModules.home.default =
     {
@@ -19,13 +16,13 @@
 
       imports = [
         inputs.lazyvim.homeManagerModules.default
-        (import ./parts/packages-home.nix { inherit pkgs inputs; })
-        (import ./parts/shell.nix { inherit pkgs config; })
-        (import ./parts/editors.nix { inherit pkgs inputs; })
-        (import ./parts/programs.nix { inherit pkgs config; })
-        (import ./parts/themes.nix { inherit pkgs; })
-        (import ./parts/waybar.nix { })
-        (import ./parts/hyprlock-idle.nix { inherit lib; })
+        ./parts/packages-home.nix
+        ./parts/shell.nix
+        ./parts/editors.nix
+        ./parts/programs.nix
+        ./parts/themes.nix
+        ./parts/waybar.nix
+        ./parts/hyprlock-idle.nix
       ];
 
       wayland.windowManager.hyprland = {
