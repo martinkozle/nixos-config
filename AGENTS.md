@@ -20,7 +20,9 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 **Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
 
-**Phase 5 complete** (84bcf12): T14s host fully installed and running. Real `hardware-configuration.nix` from physical install (btrfs + LUKS2 on Micron 2300 NVMe). Touchpad name difference (`elan-touchpad` vs P1's `synps/2-synaptics-touchpad`) resolved with regex matching in `modules/home/default.nix`. Bluetooth `powerOnBoot = true` (ThinkPad rfkill was blocking on boot). `monitors-t14s.nix` not needed — both hosts share `eDP-1` output name. Post-install optimizations deferred to #010 (btrfs compression, zram, LUKS tuning, WireGuard).
+**Phase 5 complete** (84bcf12): T14s host fully installed and running. Real `hardware-configuration.nix` from physical install (btrfs + LUKS2 on Micron 2300 NVMe). Touchpad name difference (`elan-touchpad` vs P1's `synps/2-synaptics-touchpad`) resolved with regex matching in `modules/home/default.nix`. Bluetooth `powerOnBoot = true` (ThinkPad rfkill was blocking on boot). `monitors-t14s.nix` not needed — both hosts share `eDP-1` output name. Post-install optimizations deferred to #010.
+
+**#010 partial** (3e96eeb): T14s btrfs `compress=zstd` on `/`, `/home`, `/nix`. Both hosts use zram swap (replaced disk swap partitions, `swappiness = 100` via sysctl). LUKS tuning skipped (already optimal). WireGuard config deployed manually, `autostart = false`. pulseaudio/pactl skipped (not needed).
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases

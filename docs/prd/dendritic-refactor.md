@@ -176,7 +176,7 @@ Each phase produces a buildable configuration verified by `nixos-rebuild build -
 - Touchpad name difference discovered (`elan-touchpad` vs `synps/2-synaptics-touchpad`) — fixed in `modules/home/default.nix` with regex matching both
 - Bluetooth `powerOnBoot` set to `true` (was soft-blocked by ThinkPad rfkill on boot)
 - `monitors-t14s.nix` not needed — both hosts use `eDP-1` output name, fallback `output = ""` works indefinitely
-- Post-install optimizations deferred to #010 (btrfs compression, zram, LUKS tuning, WireGuard)
+- Post-install optimizations deferred to #010 (partially done: btrfs compression + zram deployed; WireGuard config pending)
 
 ### Host Naming Convention
 
