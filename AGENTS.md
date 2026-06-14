@@ -8,21 +8,9 @@ NixOS configuration managed as a GitOps flake. Targets two laptops:
 
 Both share ~90% of config (Hyprland, packages, services, theme).
 
-## Current State → Target
+## Architecture
 
-**Phase 1 complete** (a8c1038): `flake-parts` + `import-tree` skeleton. All modules auto-discovered under `modules/`. P1 host builds successfully. Old root-level files still exist (remove in Phase 4).
-
-**Phase 2 complete**: Monolithic `base.nix` split into 12 feature modules (graphics, networking, nfs, audio, bluetooth, docker, services, security, power, packages-system, hyprland-system, nvidia). `base.nix` reduced from 282 to ~92 lines. Host assembly moved to `flake.nix` to avoid lazy evaluation cycles.
-
-**Phase 2.5 complete**: Hardened for multi-host. Removed host-specific config from shared modules: LUKS UUIDs moved to `luks-p1g3.nix`, WireGuard to `wireguard-p1g3.nix`, hostname to `flake.nix` host assembly. Dead `modules/hosts/p1g3/default.nix` removed. `loadFeature` simplified to one-liner.
-
-**Phase 3 complete** (5426f96, refined 93662e7, 1920d8d, 6c942ad): Monolithic `modules/home/default.nix` (799 lines) split into 7 extracted modules under `modules/home/parts/` (packages-home, shell, editors, programs, themes, waybar, hyprlock-idle). Parts are proper HM modules (`{ pkgs, ... }: { ... }`) imported via plain paths in `default.nix` (not `import` calls). Values needed across parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`. `import-tree` `matchNot` regex updated to `".*(hardware-configuration|home/parts/).*"` to exclude extracted files from auto-discovery.
-
-**Phase 4 complete**: Removed root-level `configuration.nix`, `home.nix`, `hardware-configuration.nix` — all content migrated to `modules/`.
-
-**Phase 5 complete** (84bcf12): T14s host fully installed and running. Real `hardware-configuration.nix` from physical install (btrfs + LUKS2 on Micron 2300 NVMe). Touchpad name difference (`elan-touchpad` vs P1's `synps/2-synaptics-touchpad`) resolved with regex matching in `modules/home/default.nix`. Bluetooth `powerOnBoot = true` (ThinkPad rfkill was blocking on boot). `monitors-t14s.nix` not needed — both hosts share `eDP-1` output name. Post-install optimizations deferred to #010.
-
-**#010 partial** (3e96eeb): T14s btrfs `compress=zstd` on `/`, `/home`, `/nix`. Both hosts use zram swap (replaced disk swap partitions, `swappiness = 100` via sysctl). LUKS tuning skipped (already optimal). WireGuard config deployed manually, `autostart = false`. pulseaudio/pactl skipped (not needed).
+Both hosts share the same module set: btrfs compression (T14s only — P1 is ext4), zram swap (both), NFS automount, PipeWire, Hyprland, TLP power management. See `docs/prd/dendritic-refactor.md` for migration history and `docs/issues/` for tracking.
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
