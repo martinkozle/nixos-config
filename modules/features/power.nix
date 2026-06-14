@@ -4,8 +4,9 @@
     {
       powerManagement.enable = true;
 
-      boot.swappiness = 100;
-      boot.zramSwap.enable = true;
+      zramSwap.enable = true;
+
+      boot.kernel.sysctl."vm.swappiness" = 100;
 
       services.thermald.enable = true;
 
