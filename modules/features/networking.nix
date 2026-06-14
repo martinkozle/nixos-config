@@ -4,6 +4,11 @@
     {
       networking.networkmanager.enable = true;
 
+      services.avahi = {
+        enable = true;
+        publish.enable = true;
+      };
+
       networking.firewall = {
         allowedUDPPorts = [
           12344
