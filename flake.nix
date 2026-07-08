@@ -18,54 +18,120 @@
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
-
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      nixos-hardware,
-      ...
-    }@inputs:
+    inputs:
     let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      formatter.${system} = pkgs.nixfmt;
-      checks.${system} = {
-        pre-commit-check = inputs.git-hooks.lib.${system}.run {
-          src = ./.;
-          hooks = {
-            nixfmt.enable = true;
+      fp = inputs.flake-parts.lib.mkFlake { inherit inputs; };
+      flake = fp {
+        systems = [ "x86_64-linux" ];
+        imports = [
+          (inputs.import-tree.matchNot ".*(hardware-configuration|home/parts/).*" ./modules)
+        ];
+        flake = {
+          schemas = {
+            checks = inputs.flake-parts.flakeSchema.applyCheckSchema;
           };
         };
-      };
-      devShells.${system} = {
-        default =
-          let
-            inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
-          in
-          pkgs.mkShell {
-            inherit shellHook;
-            buildInputs = enabledPackages;
+        perSystem =
+          { pkgs, self', ... }:
+          {
+            formatter = pkgs.nixfmt;
+            checks.pre-commit-check = inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+              src = ./.;
+              hooks = {
+                nixfmt.enable = true;
+              };
+            };
+            devShells.default =
+              let
+                inherit (self'.checks.pre-commit-check) shellHook enabledPackages;
+              in
+              pkgs.mkShell {
+                inherit shellHook;
+                buildInputs = enabledPackages;
+              };
           };
       };
+
+      # Inline module loading — handles both { ... } and {} module signatures
+      loadFeature =
+        path: name:
+        let
+          raw = import path;
+          loaded = if builtins.isFunction raw then raw { inherit inputs; } else raw;
+        in
+        loaded.flake.nixosModules.${name};
+    in
+    flake
+    // {
       nixosConfigurations = {
-        p1g3 = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit inputs; };
+        p1g3 = inputs.nixpkgs.lib.nixosSystem {
           modules = [
-            nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
-            ./configuration.nix
-            home-manager.nixosModules.home-manager
+            inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
+            ./modules/hosts/p1g3/hardware-configuration.nix
+            (loadFeature ./modules/features/base.nix "base")
+            (loadFeature ./modules/features/graphics.nix "graphics")
+            (loadFeature ./modules/features/networking.nix "networking")
+            (loadFeature ./modules/features/nfs.nix "nfs")
+            (loadFeature ./modules/features/audio.nix "audio")
+            (loadFeature ./modules/features/bluetooth.nix "bluetooth")
+            (loadFeature ./modules/features/docker.nix "docker")
+            (loadFeature ./modules/features/services.nix "services")
+            (loadFeature ./modules/features/security.nix "security")
+            (loadFeature ./modules/features/power.nix "power")
+            (loadFeature ./modules/features/packages-system.nix "packages-system")
+            (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/nvidia.nix "nvidia")
+            (loadFeature ./modules/features/luks-p1g3.nix "luks-p1g3")
+            (loadFeature ./modules/features/wireguard-p1g3.nix "wireguard-p1g3")
+            inputs.home-manager.nixosModules.home-manager
             {
+              networking.hostName = "p1g3";
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.martin = ./home.nix;
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                homeDirectory = "/home/martin";
+                nvidiaEnabled = true;
+              };
+              home-manager.users.martin = flake.homeModules.home.default;
+            }
+          ];
+        };
+
+        t14s = inputs.nixpkgs.lib.nixosSystem {
+          modules = [
+            inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
+            ./modules/hosts/t14s/hardware-configuration.nix
+            (loadFeature ./modules/features/base.nix "base")
+            (loadFeature ./modules/features/graphics.nix "graphics")
+            (loadFeature ./modules/features/networking.nix "networking")
+            (loadFeature ./modules/features/nfs.nix "nfs")
+            (loadFeature ./modules/features/audio.nix "audio")
+            (loadFeature ./modules/features/bluetooth.nix "bluetooth")
+            (loadFeature ./modules/features/docker.nix "docker")
+            (loadFeature ./modules/features/services.nix "services")
+            (loadFeature ./modules/features/security.nix "security")
+            (loadFeature ./modules/features/power.nix "power")
+            (loadFeature ./modules/features/packages-system.nix "packages-system")
+            (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/intel-gpu.nix "intel-gpu")
+            (loadFeature ./modules/features/wireguard-t14s.nix "wireguard-t14s")
+            inputs.home-manager.nixosModules.home-manager
+            {
+              networking.hostName = "t14s";
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                homeDirectory = "/home/martin";
+                nvidiaEnabled = false;
+              };
+              home-manager.users.martin = flake.homeModules.home.default;
             }
           ];
         };
