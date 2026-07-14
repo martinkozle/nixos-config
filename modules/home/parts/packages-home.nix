@@ -28,6 +28,7 @@ in
     pkgs.playerctl
     pkgs.pavucontrol
     pkgs.brave
+    pkgs.chromium
     pkgs-unstable.joplin-desktop
     pkgs.btop
     pkgs.seahorse
