@@ -33,6 +33,16 @@ in
     pkgs.btop
     pkgs.seahorse
 
+    # CLI tooling
+    pkgs.ripgrep
+    pkgs.fd
+    pkgs.jq
+    pkgs.yq-go
+    pkgs.tree
+    pkgs.gh
+    pkgs.shellcheck
+    pkgs.shfmt
+
     pkgs.nixfmt
     pkgs.nixd
     pkgs-unstable.ty
