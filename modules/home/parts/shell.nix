@@ -42,4 +42,9 @@ in
     enable = true;
     settings = { };
   };
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
 }
