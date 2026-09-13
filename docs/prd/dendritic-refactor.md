@@ -117,7 +117,7 @@ Each module owns one coherent feature. Modules contributing to both NixOS and Ho
 
 ### Existing Inputs Preserved
 
-All current flake inputs are preserved: `nixpkgs` (26.05), `nixpkgs-unstable`, `hyprland`, `home-manager` (26.05), `nixos-hardware`, `git-hooks`, `lazyvim`, `codex-cli-nix`, `opencode`.
+All current flake inputs are preserved: `nixpkgs` (26.05), `nixpkgs-unstable`, `hyprland`, `home-manager` (26.05), `nixos-hardware`, `git-hooks`, `lazyvim`, `codex-cli-nix`, `opencode`, `herdr-nix`.
 
 Add: `flake-parts` input.
 

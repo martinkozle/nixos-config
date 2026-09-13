@@ -80,6 +80,7 @@ in
     pkgs.prismlauncher
     pkgs.nodejs
     pkgs.steam-run
+    inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
       postPatch = (old.postPatch or "") + ''
         substituteInPlace packages/script/src/index.ts \

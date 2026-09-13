@@ -68,6 +68,10 @@ Not all hardware is identical between hosts. When adding config that depends on 
 - When a module needs unstable packages, import via `import inputs.nixpkgs-unstable { system = ...; config.allowUnfree = true; };`
 - Never use `nixpkgs-unstable` as the default — it's only for packages that don't exist or are too old on stable
 
+### External Package Flakes
+
+- `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
+
 ### Scripts Directory Auto-Package
 
 `scripts/*.sh` files are auto-converted to packages via `pkgs.writeShellScriptBin`. Any script placed in `scripts/` becomes available in the user's PATH. The `home.packages` module reads the directory and generates package derivations.
@@ -76,7 +80,7 @@ Not all hardware is identical between hosts. When adding config that depends on 
 
 | Action | Command |
 |--------|---------|
-| Switch on current machine | `nh switch` (nh is installed and configured for this flake) |
+| Switch on current machine | `nh os switch` (nh is installed and configured for this flake) |
 | Build for a specific host | `nixos-rebuild build --flake .#p1g3` or `.#t14s` |
 | Deploy to a host | `sudo nixos-rebuild switch --flake .#p1g3` |
 | Validate flake | `nix flake check` |
@@ -86,7 +90,7 @@ Not all hardware is identical between hosts. When adding config that depends on 
 | Update all inputs | `nix flake update` |
 | Update single input | `nix flake update <name>` |
 
-> **Note:** Use `nh` for daily rebuilds on the current machine. Use `nixos-rebuild --flake .#<host>` for cross-host builds or when targeting a specific host.
+> **Note:** Use `nh os switch` for daily rebuilds on the current machine. Use `nixos-rebuild --flake .#<host>` for cross-host builds or when targeting a specific host.
 
 ## Architecture Notes
 

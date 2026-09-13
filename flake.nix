@@ -18,6 +18,7 @@
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    herdr-nix.url = "github:herdrdev/herdr-nix";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
   };
