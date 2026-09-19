@@ -17,16 +17,12 @@ in
   home.packages = [
     pkgs.killall
     pkgs.clang
-    pkgs.rofi
     pkgs.rofimoji
-    pkgs.cliphist
-    pkgs.wl-clipboard
     pkgs.hyprshot
     pkgs.hyprpolkitagent
     pkgs.hyprpicker
     pkgs.brightnessctl
     pkgs.playerctl
-    pkgs.pavucontrol
     pkgs.brave
     pkgs.chromium
     pkgs-unstable.joplin-desktop
@@ -63,7 +59,6 @@ in
     pkgs.kdePackages.okular
     pkgs.cargo
     pkgs.rustc
-    pkgs.networkmanagerapplet
     pkgs.libreoffice-fresh
     pkgs.hunspell
     pkgs.hunspellDicts.en_US

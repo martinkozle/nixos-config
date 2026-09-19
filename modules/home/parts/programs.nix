@@ -31,10 +31,6 @@
     configPath = "${homeDirectory}/.config/mozilla/firefox";
   };
 
-  programs.rofi = {
-    theme = "Arc-Dark";
-  };
-
   programs.obs-studio = {
     enable = true;
     package = pkgs.obs-studio.override {

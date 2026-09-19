@@ -16,12 +16,12 @@
 
       imports = [
         inputs.lazyvim.homeManagerModules.default
+        inputs.noctalia.homeModules.default
         ./parts/packages-home.nix
         ./parts/shell.nix
         ./parts/editors.nix
         ./parts/programs.nix
         ./parts/themes.nix
-        ./parts/waybar.nix
         ./parts/hyprlock-idle.nix
       ];
 
@@ -45,9 +45,6 @@
         "$backlight" = "intel_backlight";
         exec-once = [
           "systemctl --user start hyprpolkitagent"
-          "uwsm app -- wl-paste --type text --watch cliphist store"
-          "uwsm app -- wl-paste --type image --watch cliphist store"
-          "uwsm app -- blueman-tray"
         ];
         env = [
           "GSK_RENDERER=gl"
@@ -201,17 +198,17 @@
           "$mod, R, layoutmsg, colresize +conf"
           "$mod SHIFT, E, exec, uwsm app -- $fileManager"
           "$mod SHIFT, RETURN, exec, uwsm app -- $terminal"
-          "$mod, SPACE, exec, uwsm app -- rofi -show drun"
+          "$mod, SPACE, exec, noctalia msg panel-toggle launcher"
           "$mod, PERIOD, exec, uwsm app -- rofimoji --action copy"
-          "$mod, V, exec, cliphist list | uwsm app -- rofi -modi clipboard:cliphist-rofi-img -show clipboard -show-icons"
+          "$mod, V, exec, noctalia msg panel-toggle clipboard"
           ", Print, exec, uwsm app -- hyprshot -m output --clipboard-only"
           "SHIFT, Print, exec, uwsm app -- hyprshot -m window --clipboard-only"
           "$mod SHIFT, Print, exec, uwsm app -- hyprshot -m region --clipboard-only"
-          "$mod, grave, exec, uwsm app -- swaync-client -t -sw"
+          "$mod, grave, exec, noctalia msg panel-toggle control-center notifications"
           "$mod SHIFT, T, exec, uwsm app -- hyprpicker -a"
-          "$mod, F1, exec, uwsm app -- pavucontrol"
-          "$mod, B, exec, killall -s SIGUSR1 .waybar-wrapped || uwsm app -- waybar"
-          "$mod ALT, B, exec, killall .waybar-wrapped"
+          "$mod, F1, exec, noctalia msg panel-toggle control-center audio"
+          "$mod, B, exec, noctalia msg bar-hide"
+          "$mod ALT, B, exec, noctalia msg bar-show"
         ];
         bindd = [
           "$mod, Tab, Change focus to next window, cyclenext,"
@@ -222,28 +219,37 @@
           "$mod, mouse:273, resizewindow"
         ];
         bindl = [
-          ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
-          ", XF86AudioPause, exec, playerctl play-pause; hyprctl notify -1 2000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl status))\""
-          ", XF86AudioPlay, exec, playerctl play-pause; hyprctl notify -1 2000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl status))\""
-          ", XF86AudioNext, exec, playerctl next; hyprctl notify -1 3000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist)\""
-          ", XF86AudioPrev, exec, playerctl previous; hyprctl notify -1 3000 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist)\""
+          ", XF86AudioMute, exec, noctalia msg volume-mute"
+          ", XF86AudioRaiseVolume, exec, noctalia msg volume-up"
+          ", XF86AudioLowerVolume, exec, noctalia msg volume-down"
+          ", XF86AudioPause, exec, playerctl play-pause"
+          ", XF86AudioPlay, exec, playerctl play-pause"
+          ", XF86AudioNext, exec, playerctl next"
+          ", XF86AudioPrev, exec, playerctl previous"
+          ", XF86MonBrightnessDown, exec, noctalia msg brightness-down"
+          ", XF86MonBrightnessUp, exec, noctalia msg brightness-up"
         ];
         bindel = [
-          ", XF86AudioLowerVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%-; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
-          ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+; hyprctl notify -1 1500 0 $(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
-          "$mod, XF86AudioLowerVolume, exec, playerctl volume 0.05-; hyprctl notify -1 1500 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl volume))\""
-          "$mod, XF86AudioRaiseVolume, exec, playerctl volume 0.05+; hyprctl notify -1 1500 0 \"$(playerctl metadata xesam:title) - $(playerctl metadata xesam:artist) ($(playerctl volume))\""
-          ", XF86MonBrightnessDown, exec, brightnessctl -d $backlight set 5%- --min-value 1; hyprctl notify -1 1500 0 \"Brightness: $(brightnessctl -d $backlight -m | cut -d, -f4)\""
-          ", XF86MonBrightnessUp, exec, brightnessctl -d $backlight set 5%+; hyprctl notify -1 1500 0 \"Brightness: $(brightnessctl -d $backlight -m | cut -d, -f4)\""
+          "$mod, XF86AudioLowerVolume, exec, playerctl volume 0.05-"
+          "$mod, XF86AudioRaiseVolume, exec, playerctl volume 0.05+"
         ];
       };
 
-      services.swaync = {
+      programs.noctalia = {
         enable = true;
+        systemd.enable = true;
+        settings = {
+          shell = {
+            launch_apps_as_systemd_services = true;
+          };
+          bar = {
+            main = {
+              auto_hide = true;
+              reserve_space = false;
+            };
+          };
+        };
       };
-
-      services.network-manager-applet.enable = true;
-      services.blueman-applet.enable = true;
 
       programs.home-manager.enable = true;
     };

@@ -10,7 +10,7 @@ Both share ~90% of config (Hyprland, packages, services, theme).
 
 ## Architecture
 
-Both hosts share the same module set: btrfs compression (T14s only — P1 is ext4), zram swap (both), NFS automount, PipeWire, Hyprland, TLP power management. See `docs/prd/dendritic-refactor.md` for migration history and `docs/issues/` for tracking.
+Both hosts share the same module set: btrfs compression (T14s only — P1 is ext4), zram swap (both), NFS automount, PipeWire, Hyprland, Noctalia v5 desktop shell (replaced waybar + rofi + swaync + tray applets), TLP power management. See `docs/prd/dendritic-refactor.md` for migration history and `docs/issues/` for tracking.
 
 **Read first:**
 - `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
@@ -71,6 +71,7 @@ Not all hardware is identical between hosts. When adding config that depends on 
 ### External Package Flakes
 
 - `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
+- `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Do NOT add `inputs.nixpkgs.follows` to it — that changes the derivation hash and breaks cache hits. The substituter (`https://noctalia.cachix.org/`) and its key live in `modules/features/base.nix` (`nix.settings`). The Home Manager module is imported in `modules/home/default.nix`; the shell runs as a systemd user service (`programs.noctalia.systemd.enable = true`). Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC.
 
 ### Scripts Directory Auto-Package
 
