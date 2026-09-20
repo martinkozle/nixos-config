@@ -30,12 +30,6 @@ in
         file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
       }
     ];
-
-    initContent = ''
-      if uwsm check may-start && uwsm select; then
-      	exec systemd-cat -t uwsm_start uwsm start default
-      fi
-    '';
   };
 
   programs.starship = {

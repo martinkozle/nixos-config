@@ -22,7 +22,6 @@
         ./parts/editors.nix
         ./parts/programs.nix
         ./parts/themes.nix
-        ./parts/hyprlock-idle.nix
       ];
 
       wayland.windowManager.hyprland = {
@@ -145,7 +144,7 @@
           "scrolltouchpad 2, class:^(kitty)$"
         ];
         bind = [
-          "$mod, DELETE, exec, uwsm app -- hyprlock"
+          "$mod, DELETE, exec, noctalia msg session lock"
           "$mod ALT, DELETE, exit,"
           "$mod ALT CONTROL, DELETE, exec, systemctl reboot"
           "$mod ALT CONTROL SHIFT, DELETE, exec, systemctl poweroff"
@@ -196,16 +195,15 @@
           "$mod CTRL, H, layoutmsg, swapcol l"
           "$mod CTRL, left, layoutmsg, swapcol l"
           "$mod, R, layoutmsg, colresize +conf"
-          "$mod SHIFT, E, exec, uwsm app -- $fileManager"
-          "$mod SHIFT, RETURN, exec, uwsm app -- $terminal"
+          "$mod SHIFT, E, exec, $fileManager"
+          "$mod SHIFT, RETURN, exec, $terminal"
           "$mod, SPACE, exec, noctalia msg panel-toggle launcher"
-          "$mod, PERIOD, exec, uwsm app -- rofimoji --action copy"
+          "$mod, PERIOD, exec, rofimoji --action copy"
           "$mod, V, exec, noctalia msg panel-toggle clipboard"
-          ", Print, exec, uwsm app -- hyprshot -m output --clipboard-only"
-          "SHIFT, Print, exec, uwsm app -- hyprshot -m window --clipboard-only"
-          "$mod SHIFT, Print, exec, uwsm app -- hyprshot -m region --clipboard-only"
+          ", Print, exec, noctalia msg screenshot-fullscreen"
+          "SHIFT, Print, exec, noctalia msg screenshot-region"
           "$mod, grave, exec, noctalia msg panel-toggle control-center notifications"
-          "$mod SHIFT, T, exec, uwsm app -- hyprpicker -a"
+          "$mod SHIFT, T, exec, hyprpicker -a"
           "$mod, F1, exec, noctalia msg panel-toggle control-center audio"
           "$mod, B, exec, noctalia msg bar-hide"
           "$mod ALT, B, exec, noctalia msg bar-show"
@@ -242,12 +240,46 @@
         settings = {
           shell = {
             launch_apps_as_systemd_services = true;
+            screenshot = {
+              save_to_file = false;
+              copy_to_clipboard = true;
+            };
           };
           bar = {
             main = {
               auto_hide = true;
               reserve_space = false;
             };
+          };
+          dock = {
+            enabled = true;
+          };
+          idle = {
+            behavior = {
+              lock = {
+                timeout = 105;
+                action = "lock";
+                enabled = true;
+              };
+              "screen-off" = {
+                timeout = 110;
+                action = "screen_off";
+                enabled = true;
+              };
+              "kbd-backlight" = {
+                timeout = 100;
+                action = "command";
+                command = "brightnessctl -sd rgb:kbd_backlight set 0";
+                resume_command = "brightnessctl -rd rgb:kbd_backlight";
+                enabled = true;
+              };
+            };
+          };
+          lockscreen = {
+            enabled = true;
+            blurred_desktop = true;
+            blur_intensity = 0.5;
+            tint_intensity = 0.3;
           };
         };
       };

@@ -18,7 +18,6 @@ in
     pkgs.killall
     pkgs.clang
     pkgs.rofimoji
-    pkgs.hyprshot
     pkgs.hyprpolkitagent
     pkgs.hyprpicker
     pkgs.brightnessctl

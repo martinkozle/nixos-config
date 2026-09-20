@@ -20,10 +20,6 @@
             }
           });
         '';
-
-        pam.services = {
-          hyprlock = { };
-        };
       };
     };
 }
