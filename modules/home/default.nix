@@ -43,6 +43,8 @@
         "$fileManager" = "thunar";
         "$backlight" = "intel_backlight";
         exec-once = [
+          "dbus-update-activation-environment --systemd --all"
+          "systemctl --user start hyprland-session.target"
           "systemctl --user start hyprpolkitagent"
         ];
         env = [

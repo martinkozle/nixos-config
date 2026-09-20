@@ -87,6 +87,7 @@
             (loadFeature ./modules/features/power.nix "power")
             (loadFeature ./modules/features/packages-system.nix "packages-system")
             (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/greetd.nix "greetd")
             (loadFeature ./modules/features/nvidia.nix "nvidia")
             (loadFeature ./modules/features/luks-p1g3.nix "luks-p1g3")
             (loadFeature ./modules/features/wireguard-p1g3.nix "wireguard-p1g3")
@@ -121,6 +122,7 @@
             (loadFeature ./modules/features/power.nix "power")
             (loadFeature ./modules/features/packages-system.nix "packages-system")
             (loadFeature ./modules/features/hyprland-system.nix "hyprland-system")
+            (loadFeature ./modules/features/greetd.nix "greetd")
             (loadFeature ./modules/features/intel-gpu.nix "intel-gpu")
             (loadFeature ./modules/features/wireguard-t14s.nix "wireguard-t14s")
             inputs.home-manager.nixosModules.home-manager
