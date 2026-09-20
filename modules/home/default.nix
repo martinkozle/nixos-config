@@ -219,6 +219,7 @@
           "$mod, mouse:273, resizewindow"
         ];
         bindl = [
+          "ALT, Tab, exec, noctalia msg window-switcher"
           ", XF86AudioMute, exec, noctalia msg volume-mute"
           ", XF86AudioRaiseVolume, exec, noctalia msg volume-up"
           ", XF86AudioLowerVolume, exec, noctalia msg volume-down"
