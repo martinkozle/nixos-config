@@ -253,9 +253,6 @@
               reserve_space = false;
             };
           };
-          dock = {
-            enabled = true;
-          };
           idle = {
             behavior = {
               lock = {
