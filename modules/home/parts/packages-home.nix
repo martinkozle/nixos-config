@@ -40,7 +40,10 @@ in
 
     pkgs.nixfmt
     pkgs.nixd
-    pkgs.mcp-nixos # MCP server for Claude Code, opencode, codex (see .mcp.json)
+    # nixos MCP server for Claude Code / opencode / codex. Installed here rather than
+    # `nix run github:...` in the agent configs: that builds locally and exceeds the
+    # 30s MCP connect timeout.
+    pkgs.mcp-nixos
     pkgs-unstable.ty
     pkgs-unstable.uv
     pkgs.aoc-cli
