@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Bump the llm-agents input and switch, but only if every AI tool can be
+# downloaded from a binary cache. If anything would compile locally
+# (e.g. codex, a ~1h / ~12 GiB Rust build), roll the lock back and stop.
+#
+# Usage: ai-update [--check]   (--check: bump + verify, don't switch)
+
+set -euo pipefail
+
+flake="${NH_FLAKE:-$HOME/nixos-config}"
+packages=(opencode codex chatgpt claude-code claude-desktop)
+system="x86_64-linux"
+
+cd "$flake"
+
+locked_ref() {
+  nix flake metadata --json . |
+    jq -r '.locks.nodes["llm-agents"].locked | "github:\(.owner)/\(.repo)/\(.rev)"'
+}
+
+old_ref=$(locked_ref)
+backup=$(mktemp)
+cp flake.lock "$backup"
+trap 'rm -f "$backup"' EXIT
+
+nix flake update llm-agents
+new_ref=$(locked_ref)
+
+if [ "$old_ref" = "$new_ref" ]; then
+  echo "llm-agents already up to date (${old_ref##*/})."
+  [ "${1:-}" = "--check" ] && exit 0
+else
+  echo "llm-agents: ${old_ref##*/} -> ${new_ref##*/}"
+fi
+
+refs=()
+for p in "${packages[@]}"; do
+  refs+=("$new_ref#packages.$system.$p")
+done
+
+# --dry-run uses the daemon's real substituters, so this reports exactly
+# what `nh os switch` would have to compile.
+plan=$(nix build --dry-run --no-link "${refs[@]}" 2>&1)
+if grep -q 'will be built' <<<"$plan"; then
+  echo
+  echo "Not all AI tools are in the cache yet; these would compile locally:"
+  sed -n '/will be built/,/will be fetched/p' <<<"$plan" | grep '\.drv$' || true
+  cp "$backup" flake.lock
+  echo
+  echo "flake.lock rolled back. Try again in a few hours."
+  exit 1
+fi
+
+echo "All AI tools are cached:"
+for p in "${packages[@]}"; do
+  printf '  %-15s %s\n' "$p" "$(nix eval --raw "$new_ref#packages.$system.$p.version")"
+done
+
+[ "${1:-}" = "--check" ] && exit 0
+
+nh os switch

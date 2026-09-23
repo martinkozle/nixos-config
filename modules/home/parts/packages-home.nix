@@ -75,15 +75,11 @@ in
     pkgs.nodejs
     pkgs.steam-run
     inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    (inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
-      postPatch = (old.postPatch or "") + ''
-        substituteInPlace packages/script/src/index.ts \
-          --replace-fail \
-            'if (!semver.satisfies(process.versions.bun, expectedBunVersionRange)) {' \
-            'if (false && !semver.satisfies(process.versions.bun, expectedBunVersionRange)) {'
-      '';
-    }))
-    inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.chatgpt
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop
   ]
   ++ scriptBins;
 }

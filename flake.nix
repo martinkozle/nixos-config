@@ -11,14 +11,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     git-hooks.url = "github:cachix/git-hooks.nix";
     lazyvim.url = "github:pfassina/lazyvim-nix";
-    codex-cli-nix = {
-      url = "github:sadjow/codex-cli-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+    llm-agents.url = "github:numtide/llm-agents.nix";
     herdr-nix.url = "github:herdrdev/herdr-nix";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";

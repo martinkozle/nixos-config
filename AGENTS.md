@@ -70,12 +70,13 @@ Not all hardware is identical between hosts. When adding config that depends on 
 
 ### External Package Flakes
 
+- `llm-agents` (numtide/llm-agents.nix) supplies AI agent tools: `opencode`, `codex`, `chatgpt` (ChatGPT/Codex desktop app), `claude-code`, `claude-desktop` — used in `modules/home/parts/packages-home.nix`. All five are served prebuilt from `https://cache.numtide.com` — codex included; without the cache it is a ~1h / ~12 GiB Rust build that OOMs the 16 GB t14s. The substituter and key live in `modules/features/base.nix` (`nix.settings`), NOT in flake `nixConfig`: the user is not in `trusted-users`, so the daemon ignores flake-level substituters. Update with `ai-update` (`scripts/ai-update`): it bumps the input, dry-runs the five packages, and rolls the lock back if anything would compile locally (numtide's cache lags new releases by a few hours). Do NOT add `inputs.llm-agents.inputs.nixpkgs.follows` — the cache only hits when their pinned nixpkgs is used, and following ours would break it.
 - `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
 - `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Do NOT add `inputs.nixpkgs.follows` to it — that changes the derivation hash and breaks cache hits. The substituter (`https://noctalia.cachix.org/`) and its key live in `modules/features/base.nix` (`nix.settings`). The Home Manager module is imported in `modules/home/default.nix`; the shell runs as a systemd user service (`programs.noctalia.systemd.enable = true`). Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC.
 
 ### Scripts Directory Auto-Package
 
-`scripts/*.sh` files are auto-converted to packages via `pkgs.writeShellScriptBin`. Any script placed in `scripts/` becomes available in the user's PATH. The `home.packages` module reads the directory and generates package derivations.
+Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScriptBin`, named after the file with no extension (`scripts/ai-update` becomes `ai-update` in PATH). The `home.packages` module reads the directory and generates package derivations.
 
 ## Commands
 
@@ -90,6 +91,7 @@ Not all hardware is identical between hosts. When adding config that depends on 
 | Pre-commit hooks | `nix develop -c pre-commit run --all-files` |
 | Update all inputs | `nix flake update` |
 | Update single input | `nix flake update <name>` |
+| Update AI tools (cache-checked) + switch | `ai-update` (`ai-update --check` to skip the switch) |
 
 > **Note:** Use `nh os switch` for daily rebuilds on the current machine. Use `nixos-rebuild --flake .#<host>` for cross-host builds or when targeting a specific host.
 
