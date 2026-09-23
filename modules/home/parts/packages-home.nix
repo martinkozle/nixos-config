@@ -40,6 +40,7 @@ in
 
     pkgs.nixfmt
     pkgs.nixd
+    pkgs.mcp-nixos # MCP server for Claude Code, opencode, codex (see .mcp.json)
     pkgs-unstable.ty
     pkgs-unstable.uv
     pkgs.aoc-cli

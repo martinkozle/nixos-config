@@ -74,6 +74,10 @@ Not all hardware is identical between hosts. When adding config that depends on 
 - `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
 - `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Do NOT add `inputs.nixpkgs.follows` to it — that changes the derivation hash and breaks cache hits. The substituter (`https://noctalia.cachix.org/`) and its key live in `modules/features/base.nix` (`nix.settings`). The Home Manager module is imported in `modules/home/default.nix`; the shell runs as a systemd user service (`programs.noctalia.systemd.enable = true`). Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC.
 
+### Agent Config & MCP
+
+`CLAUDE.md` just imports `AGENTS.md`; `.claude/skills` is a symlink to `.agents/skills` (single source of truth for skills). The `nixos` MCP server is configured for Claude Code (`.mcp.json`), opencode (`opencode.jsonc`) and codex (`.codex/config.toml`), all calling the `mcp-nixos` binary installed via `home.packages`. Do NOT switch back to `nix run github:utensils/mcp-nixos` — it builds locally on each upstream bump (~30s+) and exceeds the clients' MCP connect timeout.
+
 ### Scripts Directory Auto-Package
 
 Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScriptBin`, named after the file with no extension (`scripts/ai-update` becomes `ai-update` in PATH). The `home.packages` module reads the directory and generates package derivations.
