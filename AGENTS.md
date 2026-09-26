@@ -4,79 +4,84 @@
 
 NixOS configuration managed as a GitOps flake. Targets two laptops:
 - **p1g3** — Lenovo ThinkPad P1 Gen 3 (Intel + NVIDIA Optimus)
-- **t14s** — Lenovo ThinkPad T14s Gen 1 (Intel i7 10th gen, no dGPU)
+- **t14s** — Lenovo ThinkPad T14s Gen 1 (Intel i7-10510U, no dGPU)
 
 Both share ~90% of config (Hyprland, packages, services, theme).
 
 ## Architecture
 
-Both hosts share the same module set: btrfs compression (T14s only — P1 is ext4), zram swap (both), NFS automount, PipeWire, Hyprland, Noctalia v5 desktop shell (replaced waybar + rofi + swaync + tray applets), TLP power management. See `docs/prd/dendritic-refactor.md` for migration history and `docs/issues/` for tracking.
+Dendritic pattern: `flake-parts` + `import-tree`. Every `.nix` file under `modules/` is a flake-parts module; `flake.nix` only declares inputs. Load the `dendritic-pattern` skill before editing anything under `modules/`; `docs/dendritic.md` has the reasoning behind each choice.
 
-**Read first:**
-- `docs/prd/dendritic-refactor.md` — full PRD with all design decisions and migration phases
-- `docs/issues/` — numbered issues tracking each incremental step
+- `modules/hosts/<host>/default.nix` — defines `flake.nixosConfigurations.<host>` with an explicit module list
+- `modules/features/<name>.nix` — `flake.nixosModules.<name>`, optionally with a `flake.homeModules.<name>` half
+- `modules/home/<name>.nix` — user-only `flake.homeModules.<name>`
+- `modules/flake/` — systems, HM flake module, formatter/checks/devShell
+
+Both hosts share: btrfs compression (T14s only — P1 is ext4), zram swap (plus random-key disk swap on T14s), NFS automount, PipeWire, Hyprland, Noctalia v5 desktop shell (replaced waybar + rofi + swaync + tray applets), TLP power management.
+
+`docs/p1g3-on-device.md` lists P1 changes (NVIDIA/PRIME, OBS CUDA, spare LUKS device) that must be tested on the P1 itself — read it when working on that machine. `docs/prd/dendritic-refactor.md` is the original migration PRD (historical; some of its decisions were later reversed, see `docs/dendritic.md`).
 
 ## Critical Rules (Would an Agent Miss These?)
 
-### Host Assembly in flake.nix
+### Hosts List Every Module Explicitly
 
-`flake.nixosConfigurations` is defined in `flake.nix`, NOT in host files under `modules/hosts/`. This avoids lazy evaluation cycles where `self.nixosModules` or `config.flake.nixosModules` can't resolve during module evaluation. When adding a new host, add the configuration in `flake.nix` alongside existing hosts.
+Each host file lists all its modules, shared ones included — no extracted `sharedModules` list — so diffing the two host files shows exactly what differs. A new feature file does nothing until it is added to a host's list (and `git add`ed — flakes only see tracked files). Revisit at 3+ hosts.
 
-### `nixosModules` is Flat
+### Features Own Their Home Manager Half
 
-`flake.nixosModules` is a flat attrset of modules — `flake.nixosModules.base`, not `flake.nixosModules.features.base`. Module names are derived from filenames (e.g., `graphics.nix` → `flake.nixosModules.graphics`).
+A feature with user-side config defines `flake.homeModules.<name>` in the same file and adds it from its NixOS module via `home-manager.sharedModules`. Hosts never list HM modules. Host-dependent user config (e.g. CUDA OBS on the P1) goes in the host-specific feature (`nvidia.nix`), not in a flag passed through `extraSpecialArgs`. User-only config goes in `modules/home/` and is imported in `modules/features/home.nix`.
 
-### `_module.args` for Inputs
+### No `specialArgs` / `_module.args` for Inputs
 
-To pass `inputs` into a NixOS module loaded via `flake.nixosModules`, set `_module.args.inputs = inputs` at the top of the module body.
+Module files are functions of `{ inputs, config, ... }` at the flake-parts level; the NixOS/HM modules they define use `inputs` from that closure. Inside a NixOS/HM module, `config` is the NixOS/HM config — bind the flake-parts `config` in a `let` outside it when you need `config.flake.*`.
 
-### Host-Specific Modules Use `<name>-<hostname>.nix` Convention
+### Host-Specific Modules Use `<name>-<hostname>.nix`
 
-Modules that only apply to one host use the naming pattern `<feature>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`, `nvidia.nix`). These are listed only in the relevant host's module list in `flake.nix`. Never put host-specific config (LUKS UUIDs, hostnames, WireGuard paths, GPU drivers) in shared modules like `base.nix`.
-
-### Home Manager Single Registration
-
-All Home Manager config is assembled in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` definitions from different files, so HM config must stay in a single registration point. Do NOT create separate `flake.homeModules.*` registrations in feature modules — put HM-side config into `home/default.nix` instead. Parts under `modules/home/parts/` are proper HM modules imported via plain paths — values flow through `extraSpecialArgs` in `flake.nix`.
-
-### `extraSpecialArgs` for Host-Specific Values in HM Parts
-
-Values that differ between hosts (like `nvidiaEnabled`) flow through `home-manager.extraSpecialArgs` in `flake.nix` into HM parts under `modules/home/parts/`. Example: `nvidiaEnabled = true` for P1, `nvidiaEnabled = false` for T14s. Use `? false` default in part module destructuring.
-
-### Explicit Module Lists — No `sharedModules` Extraction
-
-Each host lists all its modules explicitly in `flake.nix`, including shared ones. We intentionally do NOT extract a `sharedModules = [ ... ]` list. This follows the Dendritic pattern (Pavel 100+ modules, Christopher2K): each host is a self-contained "menu" — diff two hosts and you see exactly what differs. Duplication in `flake.nix` is the trade-off. If we reach 3+ hosts, revisit this decision.
+Modules that only apply to one host are named `<feature>-<hostname>.nix` (`luks-p1g3.nix`, `touchpad-p1g3.nix`, `disks-t14s.nix`, `wireguard-*.nix`; `nvidia.nix` is P1-only too) and listed only in that host. Never put host-specific values (LUKS UUIDs, partitions, WireGuard paths, GPU drivers, touchpad kernel params) in shared modules like `base.nix`. hostName and stateVersion sit inline in the host file.
 
 ### `useGlobalPkgs = true` — Overlay Scope
 
-Overlays defined in Home Manager modules are **silently ignored**. Define overlays in the host's NixOS config block (`home-manager.nixpkgs.overlays`), never in a `.nix` file inside `modules/features/` that registers as `homeModules`.
+HM uses the system `pkgs`, so overlays defined in HM modules are **silently ignored**. Overlays go in a NixOS module (`nixpkgs.overlays`).
 
 ### `hardware-configuration.nix` — Never Edit
 
-These files are generated by `nixos-generate-config`. Custom hardware config belongs in feature modules, not in these files. Regenerate by running `sudo nixos-generate-config --no-filesystem --dir <host-dir>/`.
+Generated by `nixos-generate-config`; import-tree skips these files and each host file imports its own. Custom hardware config belongs in `<feature>-<host>.nix`. Regenerate with `sudo nixos-generate-config --no-filesystem --dir modules/hosts/<host>/`.
+
+### nixos-hardware Profiles Are Not Complete
+
+`lenovo-thinkpad-t14s` is a generic profile with no CPU/GPU module, so the t14s host also imports `common-cpu-intel` (VA-API video decode) and `common-pc-ssd`. When adding a host, check what its profile actually imports.
 
 ### Hardware Differences Between Hosts
 
 Not all hardware is identical between hosts. When adding config that depends on device names, check both hosts:
-- **Touchpad:** P1 = `synps/2-synaptics-touchpad`, T14s = `elan-touchpad`. Use regex matching (`.*synps.*`, `.*elan.*`) in Hyprland config.
+- **Touchpad:** P1 = `synps/2-synaptics-touchpad` (PS/2, psmouse), T14s = `elan-touchpad` (I2C, elan_i2c). Use regex matching (`.*synps.*`, `.*elan.*`) in Hyprland config.
 - **Brightness:** Both use `intel_backlight` (same for now).
 - **Monitor output:** Both use `eDP-1` (same for now). Fallback `output = ""` works indefinitely.
 
 ### Two Nixpkgs Inputs
 
 - `nixpkgs` (nixos-26.05) — stable, primary package set
-- `nixpkgs-unstable` — for select packages (vscode, joplin, ty, uv, vesktop)
-- When a module needs unstable packages, import via `import inputs.nixpkgs-unstable { system = ...; config.allowUnfree = true; };`
-- Never use `nixpkgs-unstable` as the default — it's only for packages that don't exist or are too old on stable
+- `nixpkgs-unstable` — for select packages (vscode, joplin, ty, uv, vesktop), used as `pkgs.unstable.<name>` (overlay in `base.nix`)
+- Never `import inputs.nixpkgs-unstable` inside a module (instantiates nixpkgs again per import), and never make unstable the default
+
+### `follows` and Binary Caches
+
+The rule is in the comment at the top of `flake.nix`: follow our nixpkgs for inputs that only ship modules/libs/dev tooling (home-manager, nixos-hardware, git-hooks, flake-parts); never for inputs that serve their own binary cache (hyprland, noctalia, llm-agents) — following changes every hash and turns cache hits into local builds. Each cache's substituter + key lives in the feature that uses it (`hyprland.nix`, `noctalia.nix`, `ai-tools.nix`; nix-community in `base.nix`), NOT in flake `nixConfig`: the user is not in `trusted-users`, so the daemon ignores flake-level substituters.
 
 ### External Package Flakes
 
-- `llm-agents` (numtide/llm-agents.nix) supplies AI agent tools: `opencode`, `codex`, `chatgpt` (ChatGPT/Codex desktop app), `claude-code`, `claude-desktop` — used in `modules/home/parts/packages-home.nix`. All five are served prebuilt from `https://cache.numtide.com` — codex included; without the cache it is a ~1h / ~12 GiB Rust build that OOMs the 16 GB t14s. The substituter and key live in `modules/features/base.nix` (`nix.settings`), NOT in flake `nixConfig`: the user is not in `trusted-users`, so the daemon ignores flake-level substituters. Update with `ai-update` (`scripts/ai-update`): it bumps the input, dry-runs the five packages, and rolls the lock back if anything would compile locally (numtide's cache lags new releases by a few hours). Do NOT add `inputs.llm-agents.inputs.nixpkgs.follows` — the cache only hits when their pinned nixpkgs is used, and following ours would break it.
+- `llm-agents` (numtide/llm-agents.nix) supplies AI agent tools: `opencode`, `codex`, `chatgpt` (ChatGPT/Codex desktop app), `claude-code`, `claude-desktop` — in `modules/features/ai-tools.nix`. All five come prebuilt from `https://cache.numtide.com` — without it codex is a ~1h / ~12 GiB Rust build that OOMs the 16 GB t14s. Update with `ai-update` (`scripts/ai-update`): it bumps the input, dry-runs the five packages, and rolls the lock back if anything would compile locally (numtide's cache lags new releases by a few hours).
 - `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
-- `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Do NOT add `inputs.nixpkgs.follows` to it — that changes the derivation hash and breaks cache hits. The substituter (`https://noctalia.cachix.org/`) and its key live in `modules/features/base.nix` (`nix.settings`). The Home Manager module is imported in `modules/home/default.nix`; the shell runs as a systemd user service (`programs.noctalia.systemd.enable = true`). Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC.
+- `hyprland` (flake, master) supplies the compositor via the NixOS module. The HM module sets `package = null; portalPackage = null` so HM doesn't install nixpkgs' Hyprland alongside it (mismatched `hyprctl`). The session target (`hyprland-session.target`, which starts Noctalia and hyprpolkitagent) comes from HM's `wayland.windowManager.hyprland.systemd.enable`.
+- `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs, lock screen, idle). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Configured in `modules/features/noctalia.nix`; runs as a systemd user service. Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC. Noctalia's built-in polkit agent is off by default, so `hyprpolkitagent` is used.
+
+### Touchpad Gestures
+
+Hyprland only binds 3+ finger swipes (libinput reports two fingers as scrolling). Two-finger back/forward is done by the browsers: Firefox natively, Chromium/Brave via `--enable-features=TouchpadOverscrollHistoryNavigation` (`programs.nix`).
 
 ### Scripts Directory Auto-Package
 
-Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScriptBin`, named after the file with no extension (`scripts/ai-update` becomes `ai-update` in PATH). The `home.packages` module reads the directory and generates package derivations.
+Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScriptBin`, named after the file with no extension (`scripts/ai-update` becomes `ai-update` in PATH). `modules/home/packages.nix` reads the directory and generates the packages.
 
 ## Commands
 
@@ -86,18 +91,15 @@ Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScri
 | Build for a specific host | `nixos-rebuild build --flake .#p1g3` or `.#t14s` |
 | Deploy to a host | `sudo nixos-rebuild switch --flake .#p1g3` |
 | Validate flake | `nix flake check` |
-| Format nix files | `nix fmt` (uses nixfmt) |
+| Format nix files | `nix fmt` (nixfmt-tree, whole repo) |
 | Dev shell | `nix develop` |
 | Pre-commit hooks | `nix develop -c pre-commit run --all-files` |
 | Update all inputs | `nix flake update` |
 | Update single input | `nix flake update <name>` |
 | Update AI tools (cache-checked) + switch | `ai-update` (`ai-update --check` to skip the switch) |
+| Firmware updates | `fwupdmgr refresh && fwupdmgr get-updates`, then `fwupdmgr update` |
 
 > **Note:** Use `nh os switch` for daily rebuilds on the current machine. Use `nixos-rebuild --flake .#<host>` for cross-host builds or when targeting a specific host.
-
-## Architecture Notes
-
-This repo uses the Dendritic pattern (`flake-parts` + `import-tree`). The `dendritic-pattern` skill covers module registration, host assembly, adding features/hosts, and common pitfalls. Load it when working on any `.nix` file under `modules/`.
 
 ## Self-Updating Directive
 
@@ -108,5 +110,4 @@ Update docs when:
 - A new input is added (update the inputs section)
 - A new convention is established (add to Critical Rules)
 - A command changes (update Commands table)
-- A migration phase completes (update "Current State")
 - A rule no longer applies (remove it rather than keeping dead documentation)

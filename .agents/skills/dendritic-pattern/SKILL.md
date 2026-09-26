@@ -5,165 +5,128 @@ description: How this NixOS repository uses the Dendritic pattern (flake-parts +
 
 # Dendritic Pattern — This Repository
 
-This NixOS config uses the **Dendritic pattern** built on `flake-parts` + `lib.import-tree`. Read this before making any changes to `modules/`.
-
-## ⚠️ Read First
-
-**Before doing any work, read `docs/dendritic.md`** — it covers the research, multi-host pattern decisions, and our specific adaptations to the canonical Dendritic pattern. The skill file covers conventions; the doc covers *why* we made each choice. Both are required context.
+This NixOS config uses the **Dendritic pattern** built on `flake-parts` + `import-tree`. `docs/dendritic.md` has the background research and the reasoning behind each choice (including corrections to an earlier, wrong version of these rules).
 
 ## Core Idea
 
-Every `.nix` file under `modules/features/` is a **flake-parts top-level module**. Each file owns one feature and can contribute to NixOS, Home Manager, or both from the same file.
+`flake.nix` only declares inputs and passes `./modules` to import-tree. **Every `.nix` file under `modules/` is a flake-parts module** (except `hardware-configuration.nix`, which import-tree skips). A file owns one feature and can contribute to NixOS, Home Manager, or both.
+
+```
+modules/
+  flake/       parts.nix (systems, HM flake module), dev.nix (formatter, checks, devShell)
+  hosts/<h>/   default.nix (defines nixosConfigurations.<h>), hardware-configuration.nix
+  features/    flake.nixosModules.<name>, optionally with a flake.homeModules.<name> half
+  home/        user-only config: flake.homeModules.<name>
+```
 
 ## How Modules Register
 
-A module file receives `{ inputs, ... }` (only destructure what you need) and returns the outputs it contributes:
+The file is a function of the flake-parts module args (`inputs`, `config`, `self`, …) and returns what it contributes. The NixOS/HM modules it defines close over `inputs` lexically — no `specialArgs`, no `_module.args`:
 
 ```nix
-{ inputs, ... }: {
+{ inputs, ... }:
+{
   flake.nixosModules.myfeature =
     { pkgs, ... }:
     {
-      environment.systemPackages = [ pkgs.hello ];
+      environment.systemPackages = [ inputs.foo.packages.${pkgs.stdenv.hostPlatform.system}.default ];
     };
 }
 ```
 
-The module's catalog name is flat — derived from the filename, not the directory. `modules/features/nvidia.nix` registers as `flake.nixosModules.nvidia` (NOT `nixosModules.features.nvidia`).
+Names are flat and, by convention, equal to the filename: `modules/features/nvidia.nix` → `flake.nixosModules.nvidia`.
 
-If the module needs `inputs` (e.g., `inputs.nixpkgs-unstable`, `inputs.hyprland`), set `_module.args.inputs = inputs;` at the top of the module body:
+Inside the NixOS/HM module, `config` means the NixOS/HM config. If you need the flake-parts `config` (e.g. `config.flake.homeModules`), bind it outside first:
 
 ```nix
-{ inputs, ... }: {
-  flake.nixosModules.myfeature =
-    { pkgs, ... }:
-    {
-      _module.args.inputs = inputs;
-      programs.hyprland.package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    };
+{ config, ... }:
+let hm = config.flake.homeModules; in
+{ flake.nixosModules.x = { ... }: { home-manager.sharedModules = [ hm.x ]; }; }
+```
+
+## Features With a Home Manager Half
+
+A feature with both system and user config defines both in one file; its NixOS module pulls in the HM half, so hosts only ever list NixOS modules:
+
+```nix
+{ config, ... }:
+{
+  flake.homeModules.noctalia = { programs.noctalia.enable = true; /* … */ };
+
+  flake.nixosModules.noctalia = {
+    nix.settings.substituters = [ "https://noctalia.cachix.org/" ];   # the feature owns its cache
+    home-manager.sharedModules = [ config.flake.homeModules.noctalia ];
+  };
 }
 ```
 
-## How Hosts Import Modules
+Host-dependent user config works the same way — e.g. `nvidia.nix` sets the CUDA build of OBS through `sharedModules`, so there is no `nvidiaEnabled` flag.
 
-Host assembly lives in `flake.nix`, NOT in host files. This avoids lazy evaluation cycles where `self.nixosModules` can't resolve. Host directories under `modules/hosts/<name>/` contain only `hardware-configuration.nix` — no `default.nix`.
+User-only config with no system side goes in `modules/home/<name>.nix` as `flake.homeModules.<name>` and is added to the `imports` list in `modules/features/home.nix` (which sets up Home Manager for user `martin` on every host).
 
-In `flake.nix`, each module is loaded explicitly via `loadFeature`:
+## How Hosts Are Assembled
+
+`modules/hosts/<host>/default.nix`:
 
 ```nix
-loadFeature = path: name: (import path).flake.nixosModules.${name};
-
-nixosConfigurations = {
-  p1g3 = inputs.nixpkgs.lib.nixosSystem {
-    modules = [
-      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p1-gen3
-      ./modules/hosts/p1g3/hardware-configuration.nix
-      (loadFeature ./modules/features/base.nix "base")
-      (loadFeature ./modules/features/graphics.nix "graphics")
-      (loadFeature ./modules/features/networking.nix "networking")
-      # ... shared modules ...
-      (loadFeature ./modules/features/nvidia.nix "nvidia")      # P1-only
-      (loadFeature ./modules/features/luks-p1g3.nix "luks-p1g3") # P1-only
-      (loadFeature ./modules/features/wireguard-p1g3.nix "wireguard-p1g3") # P1-only
-      inputs.home-manager.nixosModules.home-manager
+{ inputs, config, ... }:
+{
+  flake.nixosConfigurations.t14s = inputs.nixpkgs.lib.nixosSystem {
+    modules = with config.flake.nixosModules; [
+      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t14s
+      ./hardware-configuration.nix
+      base
+      graphics
+      # … every module this host uses, shared ones included …
+      home
       {
-        networking.hostName = "p1g3";
-        home-manager.useGlobalPkgs = true;
-        home-manager.useUserPackages = true;
-        home-manager.extraSpecialArgs = { inherit inputs; };
-        home-manager.users.martin = flake.homeModules.home.default;
+        networking.hostName = "t14s";
+        system.stateVersion = "24.11";
       }
     ];
   };
-};
-```
-
-**Not all modules go to all hosts.** Shared modules (audio, bluetooth, networking, etc.) are listed for every host. Host-specific modules (nvidia, luks-p1g3, wireguard-p1g3) are only listed for hosts that need them. This explicit per-host selection is the community standard for multi-host flake configs — no automatic filtering exists, and explicit is better than implicit.
-
-When adding a new host, add its configuration in `flake.nix` alongside existing hosts. Copy the shared modules from an existing host, then add/remove host-specific modules as needed.
-
-## Adding a New Feature
-
-1. Create `modules/features/myfeature.nix`
-2. Register as `flake.nixosModules.myfeature` (flat, no `features.` prefix)
-3. Add `(loadFeature ./modules/features/myfeature.nix "myfeature")` to each host's module list in `flake.nix` that needs it
-4. For Home Manager config: extract as a proper HM module (`{ pkgs, ... }: { ... }`) under `modules/home/parts/` and add it to the `imports` list in `modules/home/default.nix`. Values needed in parts (like `inputs`, `homeDirectory`) flow through `extraSpecialArgs` in `flake.nix`.
-
-If the feature is host-specific (e.g., NVIDIA, LUKS for one host), name the file `<feature>-<hostname>.nix` (e.g., `luks-p1g3.nix`, `wireguard-p1g3.nix`) and only add it to that host's module list.
-
-## Adding a New Host
-
-1. Create `modules/hosts/newhost/`
-2. Add `hardware-configuration.nix` (generated by `nixos-generate-config`)
-3. Add the host configuration in `flake.nix` under `nixosConfigurations` — copy an existing host's block and adjust:
-   - `networking.hostName`
-   - Hardware module (e.g., `nixos-hardware` for the specific model)
-   - `./modules/hosts/<name>/hardware-configuration.nix` path
-   - Host-specific modules (swap P1-only modules for the new host's modules)
-
-## Critical Conventions
-
-### useGlobalPkgs = true
-
-This config uses `useGlobalPkgs = true`. **Overlays defined in Home Manager modules are silently ignored.** Define overlays in the host's NixOS config block (`home-manager.nixpkgs.overlays`), never in a `.nix` inside `modules/features/` that registers as `homeModules`.
-
-### nixpkgs-unstable for Select Packages
-
-Some packages come from `nixpkgs-unstable` (vscode, joplin, ty, uv, vesktop). Access it in HM modules via:
-
-```nix
-{ pkgs, inputs, ... }: let
-  pkgs-unstable = import inputs.nixpkgs-unstable {
-    system = pkgs.stdenv.hostPlatform.system;
-    config.allowUnfree = true;
-  };
-in {
-  home.packages = [ pkgs-unstable.vscode.fhs ];
 }
 ```
 
-### Home Manager Single Registration
+Every host lists all its modules explicitly — no extracted `sharedModules` list — so diffing two host files shows exactly what differs. Creating a feature file is not enough; add it to each host that needs it.
 
-All HM config lives in `modules/home/default.nix`. flake-parts cannot merge multiple `flake.homeModules` from different files. Do NOT create separate `flake.homeModules.*` in feature modules — put HM-side config directly into `home/default.nix` instead. The single HM module is registered as `flake.homeModules.home.default` and referenced as `flake.homeModules.home.default` in host assembly.
+## Adding a Feature
 
-### hardware-configuration.nix — Never Edit
+1. Create `modules/features/<name>.nix` defining `flake.nixosModules.<name>` (plus `flake.homeModules.<name>` + `home-manager.sharedModules` if it has a user side).
+2. `git add` it — flakes only see tracked files.
+3. Add `<name>` to the module list of each host that needs it.
 
-These files are generated. Custom hardware config belongs in feature modules.
+Host-specific features are named `<feature>-<hostname>.nix` (`luks-p1g3.nix`, `disks-t14s.nix`) and listed only in that host.
+
+## Adding a Host
+
+1. `modules/hosts/<name>/hardware-configuration.nix` from `nixos-generate-config --no-filesystem --dir modules/hosts/<name>/`.
+2. `modules/hosts/<name>/default.nix` — copy an existing host file, change hostName, nixos-hardware profile, host-specific modules, and set `system.stateVersion` to the release it was installed with.
+
+## Critical Conventions
+
+- **`useGlobalPkgs = true`**: HM uses the system `pkgs`, so overlays in HM modules are ignored. Overlays go in a NixOS module (`nixpkgs.overlays`, see `base.nix`).
+- **Unstable packages**: `pkgs.unstable.<name>` (overlay in `base.nix`). Never `import inputs.nixpkgs-unstable` in a module — each import instantiates nixpkgs again.
+- **Binary caches** live in the feature that needs them (`nix.settings` in hyprland.nix, noctalia.nix, ai-tools.nix), not in flake `nixConfig` (the user isn't a trusted user, so flake-level substituters are ignored).
+- **`follows`**: see the comment at the top of `flake.nix`. Never add `follows` to inputs that serve their own binary cache (hyprland, noctalia, llm-agents).
+- **`hardware-configuration.nix` — never edit.** Host hardware tweaks go in `<feature>-<host>.nix`.
 
 ## Common Tasks
 
 | Task | Where |
 |------|-------|
-| Add a system package | `modules/features/packages-system.nix` |
-| Add a user package | `modules/home/parts/packages-home.nix` (home.packages) |
-| Add a new NixOS service | Create `modules/features/<service>.nix` — then add to host module lists in `flake.nix` |
-| Change Hyprland keybinds | `modules/home/default.nix` (HM side) |
-| Add a host | Create `modules/hosts/<name>/` + add config in `flake.nix` |
-| Remove a host | Delete `modules/hosts/<name>/` + remove from `flake.nix` |
-| Add an overlay | In `flake.nix` host assembly block (due to useGlobalPkgs) |
-
-## Pitfalls
-
-1. **Don't edit `hardware-configuration.nix`** — it's generated
-2. **Don't define overlays in HM modules** — ignored with `useGlobalPkgs = true`
-3. **Modules are NOT auto-included** — every module must be listed in `flake.nix` via `loadFeature`. Creating a file in `modules/features/` is not enough; add it to each host's module list.
-4. **Module names are flat** — `modules/features/foo.nix` registers as `nixosModules.foo`, NOT `nixosModules.features.foo`
-5. **HM config is single registration** — all Home Manager config is assembled in `modules/home/default.nix`. Parts under `modules/home/parts/` are proper HM modules imported via plain paths (not `import` calls). Values flow through `extraSpecialArgs`. Do NOT create `flake.homeModules.*` registrations — flake-parts can't merge them.
-6. **Host assembly is in flake.nix** — never use `self.nixosModules` or `config.flake.nixosModules` in host files; these create lazy evaluation cycles
-7. **Host-specific config goes in host-gated modules** — LUKS UUIDs, hostnames, WireGuard paths, GPU config — never put these in `base.nix` or shared modules
+| System package | `modules/features/packages-system.nix` |
+| User package | `modules/home/packages.nix` |
+| Hyprland keybinds/settings | `modules/features/hyprland.nix` (HM half) |
+| Noctalia settings | `modules/features/noctalia.nix` |
+| New service | new `modules/features/<service>.nix` + add to hosts |
+| Overlay | NixOS module (`nixpkgs.overlays`) |
 
 ## Building
 
 ```bash
-nixos-rebuild build --flake .#p1g3   # Build for P1
-nixos-rebuild build --flake .#t14s   # Build for T14s
-nix flake check                       # Validate structure
-nh switch                              # Deploy to current machine
+nixos-rebuild build --flake .#p1g3   # or .#t14s
+nix flake check
+nix fmt                              # nixfmt-tree over the whole repo
+nh os switch                         # deploy on the current machine
 ```
-
-## References
-
-- `docs/dendritic.md` — research report on multi-host patterns + our specific adaptations (read this first)
-- `docs/prd/dendritic-refactor.md` — full PRD with design decisions and migration phases
-- `docs/issues/` — numbered issues tracking migration steps
-- AGENTS.md — critical rules and conventions
