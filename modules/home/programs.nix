@@ -22,9 +22,22 @@
         flake = "${config.home.homeDirectory}/nixos-config";
       };
 
+      # Two-finger swipe back/forward (macOS style) is done by the browsers
+      # themselves: Firefox has it on by default on Wayland, Chromium-based
+      # browsers need this feature flag.
       programs.firefox = {
         enable = true;
         configPath = "${config.home.homeDirectory}/.config/mozilla/firefox";
+      };
+
+      programs.chromium = {
+        enable = true;
+        commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
+      };
+
+      programs.brave = {
+        enable = true;
+        commandLineArgs = [ "--enable-features=TouchpadOverscrollHistoryNavigation" ];
       };
 
       # NVENC/CUDA build is set by the nvidia feature (modules/features/nvidia.nix).

@@ -1,25 +1,7 @@
 {
-  flake.nixosModules.security =
-    { ... }:
-    {
-      security = {
-        polkit.enable = true;
-        polkit.extraConfig = ''
-          polkit.addRule(function(action, subject) {
-            if (
-              subject.isInGroup("users")
-                && (
-                  action.id == "org.freedesktop.login1.reboot" ||
-                  action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
-                  action.id == "org.freedesktop.login1.power-off" ||
-                  action.id == "org.freedesktop.login1.power-off-multiple-sessions"
-                )
-              )
-            {
-              return polkit.Result.YES;
-            }
-          });
-        '';
-      };
-    };
+  flake.nixosModules.security = {
+    # Reboot/poweroff from the session needs no extra rule: logind already
+    # allows it for the active local session.
+    security.polkit.enable = true;
+  };
 }

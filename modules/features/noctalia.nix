@@ -54,6 +54,13 @@
   };
 
   flake.nixosModules.noctalia = {
+    # The `cachix` branch of the input always points at a commit in this cache.
+    # Only hits while the noctalia input does not `follows` our nixpkgs.
+    nix.settings = {
+      substituters = [ "https://noctalia.cachix.org/" ];
+      trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
+    };
+
     home-manager.sharedModules = [ config.flake.homeModules.noctalia ];
   };
 }

@@ -2,8 +2,6 @@
   flake.homeModules.themes =
     { pkgs, ... }:
     {
-      home.file = { };
-
       home.sessionVariables = {
         EDITOR = "vim";
       };
@@ -41,7 +39,5 @@
           size = 11;
         };
       };
-
-      targets.genericLinux.nixGL.vulkan.enable = true;
     };
 }

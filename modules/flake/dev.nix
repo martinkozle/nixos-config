@@ -3,7 +3,9 @@
   perSystem =
     { pkgs, self', ... }:
     {
-      formatter = pkgs.nixfmt;
+      # nixfmt-tree: `nix fmt` with no arguments formats the whole repo
+      # (plain nixfmt would wait on stdin).
+      formatter = pkgs.nixfmt-tree;
 
       checks.pre-commit-check = inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
         src = ../..;

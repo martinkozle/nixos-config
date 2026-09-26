@@ -6,7 +6,12 @@
 
       zramSwap.enable = true;
 
-      boot.kernel.sysctl."vm.swappiness" = 100;
+      # Values recommended for zram: swapping to compressed RAM is cheap, so
+      # swap eagerly, and read one page at a time (no readahead).
+      boot.kernel.sysctl = {
+        "vm.swappiness" = 180;
+        "vm.page-cluster" = 0;
+      };
 
       services.thermald.enable = true;
 

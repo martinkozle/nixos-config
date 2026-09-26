@@ -1,5 +1,5 @@
-# Hyprland: system side (compositor, portal, session target) and user side
-# (Home Manager config: monitors, input, keybinds).
+# Hyprland: system side (compositor, portal, binary cache) and user side
+# (Home Manager config: session target, monitors, input, keybinds).
 { inputs, config, ... }:
 let
   hmModule =
@@ -8,9 +8,20 @@ let
       wayland.windowManager.hyprland = {
         enable = true;
         configType = "hyprlang";
+        # The compositor comes from the NixOS module (Hyprland flake). Without
+        # these nulls HM installs nixpkgs' Hyprland too, and its older/newer
+        # hyprctl shadows the one matching the running compositor.
+        package = null;
+        portalPackage = null;
+        # Creates hyprland-session.target (bound to graphical-session.target)
+        # and imports the environment into systemd on startup, which is what
+        # starts Noctalia and hyprpolkitagent.
+        systemd.enable = true;
         systemd.variables = [ "--all" ];
-        systemd.enable = false;
       };
+
+      # Noctalia has its own polkit agent, but it is off by default.
+      services.hyprpolkitagent.enable = true;
 
       wayland.windowManager.hyprland.importantPrefixes =
         options.wayland.windowManager.hyprland.importantPrefixes.default
@@ -22,15 +33,6 @@ let
         "$mod" = "SUPER";
         "$terminal" = "kitty";
         "$fileManager" = "thunar";
-        "$backlight" = "intel_backlight";
-        exec-once = [
-          "dbus-update-activation-environment --systemd --all"
-          "systemctl --user start hyprland-session.target"
-          "systemctl --user start hyprpolkitagent"
-        ];
-        env = [
-          "GSK_RENDERER=gl"
-        ];
         monitorv2 = [
           {
             output = "desc:BOE 0x086E";
@@ -115,16 +117,11 @@ let
           accel_profile = "flat";
           sensitivity = 0;
         };
+        # Two-finger back/forward is left to the browsers (see programs.nix):
+        # libinput reports two fingers as scrolling, so Hyprland can only bind
+        # 3+ finger swipes.
         gesture = [
           "4, horizontal, workspace"
-          "2, left, dispatcher, exec, ytool key XF86Back"
-          "2, right, dispatcher, exec, ytool key XF86Forward"
-        ];
-        windowrulev = [
-          "float,class:^(copyq)$"
-          "move onscreen cursor,class:^(copyq)$"
-          "suppressevent maximize, class:.*"
-          "scrolltouchpad 2, class:^(kitty)$"
         ];
         bind = [
           "$mod, DELETE, exec, noctalia msg session lock"
@@ -232,16 +229,11 @@ in
           inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
       };
 
-      # Noctalia's user service is WantedBy=graphical-session.target, which a bare
-      # Hyprland session never activates on its own. hyprland.conf (exec-once)
-      # starts this target; its Requires= pulls graphical-session.target in, which
-      # then starts Noctalia. Pattern from docs.noctalia.dev (Hyprland case).
-      systemd.user.targets.hyprland-session = {
-        description = "Hyprland Session Target";
-        unitConfig = {
-          Requires = [ "graphical-session.target" ];
-          After = [ "graphical-session.target" ];
-        };
+      # Prebuilt Hyprland flake packages. Only hits while the hyprland input
+      # does not `follows` our nixpkgs.
+      nix.settings = {
+        substituters = [ "https://hyprland.cachix.org/" ];
+        trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
       };
 
       home-manager.sharedModules = [ config.flake.homeModules.hyprland ];

@@ -18,9 +18,11 @@
       packages-system
       hyprland
       noctalia
+      ai-tools
       greetd
       nvidia
       luks-p1g3
+      touchpad-p1g3
       wireguard-p1g3
       home
       {

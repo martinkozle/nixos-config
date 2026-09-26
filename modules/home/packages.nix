@@ -17,15 +17,11 @@
         pkgs.killall
         pkgs.clang
         pkgs.rofimoji
-        pkgs.hyprpolkitagent
         pkgs.hyprpicker
         pkgs.brightnessctl
         pkgs.playerctl
-        pkgs.brave
-        pkgs.chromium
         pkgs.unstable.joplin-desktop
         pkgs.btop
-        pkgs.seahorse
 
         # CLI tooling
         pkgs.ripgrep
@@ -39,10 +35,6 @@
 
         pkgs.nixfmt
         pkgs.nixd
-        # nixos MCP server for Claude Code / opencode / codex. Installed here rather than
-        # `nix run github:...` in the agent configs: that builds locally and exceeds the
-        # 30s MCP connect timeout.
-        pkgs.mcp-nixos
         pkgs.unstable.ty
         pkgs.unstable.uv
         pkgs.aoc-cli
@@ -78,11 +70,6 @@
         pkgs.nodejs
         pkgs.steam-run
         inputs.herdr-nix.packages.${system}.default
-        inputs.llm-agents.packages.${system}.opencode
-        inputs.llm-agents.packages.${system}.codex
-        inputs.llm-agents.packages.${system}.chatgpt
-        inputs.llm-agents.packages.${system}.claude-code
-        inputs.llm-agents.packages.${system}.claude-desktop
       ]
       ++ scriptBins;
     };
