@@ -79,6 +79,15 @@ The rule is in the comment at the top of `flake.nix`: follow our nixpkgs for inp
 
 Hyprland only binds 3+ finger swipes (libinput reports two fingers as scrolling). Two-finger back/forward is done by the browsers: Firefox natively, Chromium/Brave via `--enable-features=TouchpadOverscrollHistoryNavigation` (`programs.nix`).
 
+### Firmware Updates (fwupd)
+
+`services.fwupd.enable` (services.nix); nothing installs automatically. Procedure, learned on the t14s (Sept 2026):
+- `fwupdmgr get-updates` to list, then install **one device at a time by device ID**: `fwupdmgr update <device-id>`. Plugged in, lid open.
+- **Skip Secure Boot entries** (KEK CA, UEFI CA, dbx): Secure Boot is off on both hosts (NixOS + unsigned systemd-boot; check `bootctl status`), so they change nothing.
+- When run via the `!` prefix, fwupdmgr is non-interactive: it reports success but never offers the reboot. Check `fwupdmgr get-history` ("Needs reboot") and restart yourself.
+- SSD firmware needs a **full power-off** (`systemctl poweroff`, not reboot) to load. UEFI capsule updates (Intel ME, BIOS) are applied by the firmware on the next boot and survive a power-off, so several pending updates can share one power cycle.
+- Verify afterwards: `fwupdmgr get-history` shows "Success"; SSD version in `/sys/class/nvme/nvme0/firmware_rev`.
+
 ### Scripts Directory Auto-Package
 
 Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScriptBin`, named after the file with no extension (`scripts/ai-update` becomes `ai-update` in PATH). `modules/home/packages.nix` reads the directory and generates the packages.
