@@ -1,29 +1,10 @@
-{ ... }:
-{
-  flake.homeModules.home.default =
+# Hyprland: system side (compositor, portal, session target) and user side
+# (Home Manager config: monitors, input, keybinds).
+{ inputs, config, ... }:
+let
+  hmModule =
+    { options, ... }:
     {
-      pkgs,
-      lib,
-      inputs,
-      options,
-      ...
-    }:
-
-    {
-      home.username = "martin";
-      home.homeDirectory = "/home/martin";
-      home.stateVersion = "24.11";
-
-      imports = [
-        inputs.lazyvim.homeManagerModules.default
-        inputs.noctalia.homeModules.default
-        ./parts/packages-home.nix
-        ./parts/shell.nix
-        ./parts/editors.nix
-        ./parts/programs.nix
-        ./parts/themes.nix
-      ];
-
       wayland.windowManager.hyprland = {
         enable = true;
         configType = "hyprlang";
@@ -235,54 +216,34 @@
           "$mod, XF86AudioRaiseVolume, exec, playerctl volume 0.05+"
         ];
       };
+    };
+in
+{
+  flake.homeModules.hyprland = hmModule;
 
-      programs.noctalia = {
+  flake.nixosModules.hyprland =
+    { pkgs, ... }:
+    {
+      programs.hyprland = {
         enable = true;
-        systemd.enable = true;
-        settings = {
-          shell = {
-            launch_apps_as_systemd_services = true;
-            screenshot = {
-              save_to_file = false;
-              copy_to_clipboard = true;
-            };
-          };
-          bar = {
-            main = {
-              auto_hide = true;
-              reserve_space = false;
-            };
-          };
-          idle = {
-            behavior = {
-              lock = {
-                timeout = 105;
-                action = "lock";
-                enabled = true;
-              };
-              "screen-off" = {
-                timeout = 110;
-                action = "screen_off";
-                enabled = true;
-              };
-              "kbd-backlight" = {
-                timeout = 100;
-                action = "command";
-                command = "brightnessctl -sd rgb:kbd_backlight set 0";
-                resume_command = "brightnessctl -rd rgb:kbd_backlight";
-                enabled = true;
-              };
-            };
-          };
-          lockscreen = {
-            enabled = true;
-            blurred_desktop = true;
-            blur_intensity = 0.5;
-            tint_intensity = 0.3;
-          };
+        xwayland.enable = true;
+        package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+        portalPackage =
+          inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      };
+
+      # Noctalia's user service is WantedBy=graphical-session.target, which a bare
+      # Hyprland session never activates on its own. hyprland.conf (exec-once)
+      # starts this target; its Requires= pulls graphical-session.target in, which
+      # then starts Noctalia. Pattern from docs.noctalia.dev (Hyprland case).
+      systemd.user.targets.hyprland-session = {
+        description = "Hyprland Session Target";
+        unitConfig = {
+          Requires = [ "graphical-session.target" ];
+          After = [ "graphical-session.target" ];
         };
       };
 
-      programs.home-manager.enable = true;
+      home-manager.sharedModules = [ config.flake.homeModules.hyprland ];
     };
 }

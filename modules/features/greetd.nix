@@ -23,7 +23,6 @@
       '';
     in
     {
-      _module.args.inputs = inputs;
 
       # tuigreet must be on the system PATH for greetd to exec it.
       # hyprlandSession is listed only so its store path is built into the

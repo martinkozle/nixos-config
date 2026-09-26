@@ -3,8 +3,6 @@
   flake.nixosModules.base =
     { pkgs, ... }:
     {
-      _module.args.inputs = inputs;
-
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
       boot.kernelParams = [ "psmouse.synaptics_intertouch=0" ];
@@ -48,6 +46,17 @@
 
       nixpkgs.config.allowUnfree = true;
 
+      # `pkgs.unstable.<name>` for the few packages taken from nixpkgs-unstable.
+      # Defined once here; Home Manager sees it too via useGlobalPkgs.
+      nixpkgs.overlays = [
+        (final: _: {
+          unstable = import inputs.nixpkgs-unstable {
+            inherit (final.stdenv.hostPlatform) system;
+            config.allowUnfree = true;
+          };
+        })
+      ];
+
       environment.pathsToLink = [
         "/share/applications"
         "/share/xdg-desktop-portal"
@@ -62,8 +71,6 @@
       };
 
       programs.nix-ld.enable = true;
-
-      system.stateVersion = "24.11";
 
       nix.settings = {
         experimental-features = [
