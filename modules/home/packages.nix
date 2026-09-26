@@ -20,6 +20,8 @@
         pkgs.hyprpicker
         pkgs.brightnessctl
         pkgs.playerctl
+        # wl-copy/wl-paste: Claude Code shells out to wl-paste to read pasted images
+        pkgs.wl-clipboard
         pkgs.unstable.joplin-desktop
         pkgs.btop
 
