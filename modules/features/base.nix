@@ -27,6 +27,9 @@
       environment.shells = [ pkgs.zsh ];
       users.defaultUserShell = pkgs.zsh;
       programs.zsh.enable = true;
+      # Home Manager's ~/.zshrc runs compinit; skip the second, system-wide run.
+      # System completions stay on fpath via /etc/zshenv.
+      programs.zsh.enableGlobalCompInit = false;
 
       services.xserver.xkb = {
         layout = "us";
