@@ -22,6 +22,8 @@
         pkgs.playerctl
         # wl-copy/wl-paste: Claude Code shells out to wl-paste to read pasted images
         pkgs.wl-clipboard
+        # rec: Claude Code's /voice records the microphone through SoX
+        pkgs.sox
         pkgs.unstable.joplin-desktop
         pkgs.btop
 
