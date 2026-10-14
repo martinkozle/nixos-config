@@ -41,10 +41,24 @@ done
 # --dry-run uses the daemon's real substituters, so this reports exactly
 # what `nh os switch` would have to compile.
 plan=$(nix build --dry-run --no-link "${refs[@]}" 2>&1)
-if grep -q 'will be built' <<<"$plan"; then
+mapfile -t to_build < <(sed -n '/will be built/,/will be fetched/p' <<<"$plan" | grep -o '/nix/store/[^ ]*\.drv' || true)
+
+# Trivial wrappers (writeShellScript & co.) set allowSubstitutes = false, so
+# they are always "built" locally in milliseconds even when cached. Ignore them.
+real_builds=()
+if [ ${#to_build[@]} -gt 0 ]; then
+  mapfile -t real_builds < <(nix derivation show "${to_build[@]}" | jq -r '
+    (.derivations // .) | to_entries[]
+    | select(if .value.structuredAttrs
+             then .value.structuredAttrs.allowSubstitutes != false
+             else (.value.env.allowSubstitutes // "1") != "" end)
+    | .key')
+fi
+
+if [ ${#real_builds[@]} -gt 0 ]; then
   echo
   echo "Not all AI tools are in the cache yet; these would compile locally:"
-  sed -n '/will be built/,/will be fetched/p' <<<"$plan" | grep '\.drv$' || true
+  printf '  %s\n' "${real_builds[@]}"
   cp "$backup" flake.lock
   echo
   echo "flake.lock rolled back. Try again in a few hours."
