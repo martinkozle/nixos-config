@@ -37,6 +37,20 @@
         pkgs.shellcheck
         pkgs.shfmt
 
+        # CLI video editing (for agents)
+        # ffmpeg-full: drawtext, libass subtitles and the other filters plain ffmpeg leaves out
+        pkgs.ffmpeg-full
+        # melt: renders MLT XML timelines, the same project format Shotcut opens
+        pkgs.mlt
+        # auto-editor: cuts silence and dead air automatically
+        pkgs.auto-editor
+        # whisper-cli: local speech-to-text for subtitles (models are downloaded separately)
+        pkgs.whisper-cpp
+        pkgs.mediainfo
+        pkgs.mkvtoolnix-cli
+        pkgs.imagemagick
+        pkgs.yt-dlp
+
         pkgs.nixfmt
         pkgs.nixd
         pkgs.unstable.ty
