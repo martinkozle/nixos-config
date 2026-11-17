@@ -1,10 +1,7 @@
-{ inputs, ... }:
 {
   flake.homeModules.packages =
     { pkgs, ... }:
     let
-      system = pkgs.stdenv.hostPlatform.system;
-
       scriptDir = ../../scripts;
       scriptFiles = builtins.attrNames (builtins.readDir scriptDir);
 
@@ -87,7 +84,6 @@
         pkgs.prismlauncher
         pkgs.nodejs
         pkgs.steam-run
-        inputs.herdr-nix.packages.${system}.default
       ]
       ++ scriptBins;
     };

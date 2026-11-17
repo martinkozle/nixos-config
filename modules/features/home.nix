@@ -19,6 +19,7 @@ in
           hm.editors
           hm.programs
           hm.themes
+          hm.herdr
         ];
         home.stateVersion = "24.11";
         programs.home-manager.enable = true;

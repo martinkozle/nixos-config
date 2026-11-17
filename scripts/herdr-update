@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Pin the latest Herdr app and herdr-core releases in modules/home/herdr.json,
+# using the URLs and hashes from the release manifests.
+#
+# Usage: herdr-update   (then `nh os switch`)
+
+set -euo pipefail
+
+flake="${NH_FLAKE:-$HOME/nixos-config}"
+pins="$flake/modules/home/herdr.json"
+releases="https://releases.herdr.dev"
+target="linux-x86_64"
+
+pin() {
+  curl -fsSL "$releases/$1/latest.json" |
+    jq --arg t "$target" '{version, url: .targets[$t].url, sha256: .targets[$t].sha256}'
+}
+
+app=$(pin app)
+core=$(pin core)
+new=$(jq -n --argjson app "$app" --argjson core "$core" '{app: $app, core: $core}')
+
+if [ "$new" = "$(jq . "$pins")" ]; then
+  echo "Herdr already up to date (app $(jq -r .app.version "$pins"), core $(jq -r .core.version "$pins"))."
+  exit 0
+fi
+
+printf '%s\n' "$new" >"$pins"
+echo "Pinned app $(jq -r .app.version "$pins"), core $(jq -r .core.version "$pins"). Run: nh os switch"

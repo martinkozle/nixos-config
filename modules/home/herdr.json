@@ -1,0 +1,12 @@
+{
+  "app": {
+    "version": "0.1.16",
+    "url": "https://releases.herdr.dev/app/0.1.16/herdr-app-linux-x86_64.tar.gz",
+    "sha256": "282d2632196b238206cfe66bfb61c0faf299ca1c91843bd076521bbe36571216"
+  },
+  "core": {
+    "version": "0.1.21",
+    "url": "https://releases.herdr.dev/core/0.1.21/herdr-core-linux-x86_64.tar.gz",
+    "sha256": "78424755c10a40dde38a0bdb55c20ac19706e9ae05ed68fc2acf1fcff0d941c1"
+  }
+}

@@ -71,7 +71,7 @@ The rule is in the comment at the top of `flake.nix`: follow our nixpkgs for inp
 ### External Package Flakes
 
 - `llm-agents` (numtide/llm-agents.nix) supplies AI agent tools: `opencode`, `codex`, `chatgpt` (ChatGPT/Codex desktop app), `claude-code`, `claude-desktop` — in `modules/features/ai-tools.nix`. All five come prebuilt from `https://cache.numtide.com` — without it codex is a ~1h / ~12 GiB Rust build that OOMs the 16 GB t14s. Update with `ai-update` (`scripts/ai-update`): it bumps the input, dry-runs the five packages, and rolls the lock back if anything would compile locally (numtide's cache lags new releases by a few hours).
-- `herdr-nix` supplies the Herdr package. Herdr has no Home Manager `programs.herdr` module; install it through `home.packages` using `inputs.herdr-nix.packages.${pkgs.stdenv.hostPlatform.system}.default`.
+- Herdr (desktop app `herdr-app` + `herdr-core`/`hc`) is packaged in `modules/home/herdr.nix` from the official release tarballs, pinned in `modules/home/herdr.json`. Bump with `herdr-update` (`scripts/herdr-update`), then switch. Self-update is off: the app only self-updates when `herdr-app.svg` sits beside its binary (so the binary lives in `libexec/` without it), and herdr-core refuses to update itself from `/nix/store`. The old TUI (`herdr-nix` input) was removed.
 - `hyprland` (flake, master) supplies the compositor via the NixOS module. The HM module sets `package = null; portalPackage = null` so HM doesn't install nixpkgs' Hyprland alongside it (mismatched `hyprctl`). The session target (`hyprland-session.target`, which starts Noctalia and hyprpolkitagent) comes from HM's `wayland.windowManager.hyprland.systemd.enable`.
 - `noctalia` supplies the Noctalia v5 desktop shell (bar, launcher, notifications, control center, OSDs, lock screen, idle). Pinned to the upstream `cachix` branch, which always tracks the newest commit present in their binary cache. Configured in `modules/features/noctalia.nix`; runs as a systemd user service. Bar is auto-hiding (edge hover reveal); `noctalia msg bar-hide` / `bar-show` are bound to Super+B / Super+ALT+B. Media/brightness keys and panel keybinds go through `noctalia msg` IPC. Noctalia's built-in polkit agent is off by default, so `hyprpolkitagent` is used.
 
@@ -106,6 +106,7 @@ Every file in `scripts/` is auto-converted to a package via `pkgs.writeShellScri
 | Update all inputs | `nix flake update` |
 | Update single input | `nix flake update <name>` |
 | Update AI tools (cache-checked) + switch | `ai-update` (`ai-update --check` to skip the switch) |
+| Update Herdr app + core pins | `herdr-update`, then `nh os switch` |
 | Firmware updates | `fwupdmgr refresh && fwupdmgr get-updates`, then `fwupdmgr update` |
 
 > **Note:** Use `nh os switch` for daily rebuilds on the current machine. Use `nixos-rebuild --flake .#<host>` for cross-host builds or when targeting a specific host.
